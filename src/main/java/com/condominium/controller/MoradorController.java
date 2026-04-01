@@ -6,9 +6,9 @@ import com.condominium.repository.BoletoRepository;
 import com.condominium.repository.OcorrenciaRepository;
 import com.condominium.repository.ReservaRepository;
 import com.condominium.repository.UsuarioRepository;
-import com.condominium.service.AuthService;
 import com.condominium.service.EmailService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,18 +25,21 @@ public class MoradorController {
     private final OcorrenciaRepository ocorrenciaRepository;
     private final ReservaRepository reservaRepository;
     private final BoletoRepository boletoRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public MoradorController(
             UsuarioRepository usuarioRepository,
             EmailService emailService,
             OcorrenciaRepository ocorrenciaRepository,
             ReservaRepository reservaRepository,
-            BoletoRepository boletoRepository) {
+            BoletoRepository boletoRepository,
+            PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.emailService = emailService;
         this.ocorrenciaRepository = ocorrenciaRepository;
         this.reservaRepository = reservaRepository;
         this.boletoRepository = boletoRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @GetMapping
@@ -56,7 +59,7 @@ public class MoradorController {
 
         // Gera senha temporária de 6 dígitos automaticamente
         String senhaTemporaria = String.format("%06d", new java.util.Random().nextInt(999999));
-        morador.setSenha(AuthService.hashPassword(senhaTemporaria));
+        morador.setSenha(passwordEncoder.encode(senhaTemporaria));
         
         Usuario salvo = usuarioRepository.save(morador);
 
@@ -89,7 +92,7 @@ public class MoradorController {
         return usuarioRepository.findById(id).map(morador -> {
             // Gera nova senha temporária
             String novaSenha = String.format("%06d", new java.util.Random().nextInt(999999));
-            morador.setSenha(AuthService.hashPassword(novaSenha));
+            morador.setSenha(passwordEncoder.encode(novaSenha));
             usuarioRepository.save(morador);
 
             try {
@@ -125,7 +128,7 @@ public class MoradorController {
             
             // Só atualiza a senha se foi enviada uma nova
             if (moradorAtualizado.getSenha() != null && !moradorAtualizado.getSenha().trim().isEmpty()) {
-                morador.setSenha(AuthService.hashPassword(moradorAtualizado.getSenha()));
+                morador.setSenha(passwordEncoder.encode(moradorAtualizado.getSenha()));
             }
             
             Usuario salvo = usuarioRepository.save(morador);

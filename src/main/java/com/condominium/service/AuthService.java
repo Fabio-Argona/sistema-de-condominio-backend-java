@@ -5,11 +5,8 @@ import com.condominium.dto.LoginResponse;
 import com.condominium.dto.UserDTO;
 import com.condominium.model.Usuario;
 import com.condominium.repository.UsuarioRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.security.MessageDigest;
-import java.nio.charset.StandardCharsets;
-import java.util.HexFormat;
 
 @Service
 public class AuthService {
@@ -17,42 +14,41 @@ public class AuthService {
     private final UsuarioRepository usuarioRepository;
     private final JwtService jwtService;
     private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthService(UsuarioRepository usuarioRepository, JwtService jwtService, EmailService emailService) {
+    public AuthService(UsuarioRepository usuarioRepository, JwtService jwtService, EmailService emailService, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.jwtService = jwtService;
         this.emailService = emailService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public LoginResponse login(LoginRequest request) {
+        System.out.println("Tentativa de login para: " + request.email());
+        
         Usuario usuario = usuarioRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("Credenciais inválidas"));
+                .orElseGet(() -> {
+                    System.out.println("Usuário não encontrado: " + request.email());
+                    return null;
+                });
 
-        if (!checkPassword(request.senha(), usuario.getSenha())) {
+        if (usuario == null) {
+            throw new RuntimeException("Credenciais inválidas");
+        }
+
+        if (!passwordEncoder.matches(request.senha(), usuario.getSenha())) {
+            System.out.println("Senha incorreta para o usuário: " + request.email());
             throw new RuntimeException("Credenciais inválidas");
         }
 
         if (!usuario.isAtivo()) {
+            System.out.println("Usuário desativado: " + request.email());
             throw new RuntimeException("Usuário desativado");
         }
 
+        System.out.println("Login bem-sucedido para: " + request.email() + " (Role: " + usuario.getRole() + ")");
         String token = jwtService.generateToken(usuario);
         return new LoginResponse(token, UserDTO.fromEntity(usuario));
-    }
-
-    // Hash simples para senha (em produção usar BCrypt)
-    public static String hashPassword(String password) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] hash = md.digest(password.getBytes(StandardCharsets.UTF_8));
-            return HexFormat.of().formatHex(hash);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro ao hashear senha", e);
-        }
-    }
-
-    private boolean checkPassword(String rawPassword, String hashedPassword) {
-        return hashPassword(rawPassword).equals(hashedPassword);
     }
 
     public String recuperarSenha(String email) {
@@ -61,7 +57,7 @@ public class AuthService {
 
         // Gera senha temporária de 6 digitos aleatórios
         String novaSenha = String.format("%06d", new java.util.Random().nextInt(999999));
-        usuario.setSenha(hashPassword(novaSenha));
+        usuario.setSenha(passwordEncoder.encode(novaSenha));
         usuarioRepository.save(usuario);
 
         // Envia e-mail real com a nova senha

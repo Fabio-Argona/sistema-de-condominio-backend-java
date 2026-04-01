@@ -37,6 +37,21 @@ public class ComunicadoController {
         return ResponseEntity.ok(ComunicadoDTO.fromEntity(salvo));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ComunicadoDTO> atualizar(@PathVariable Long id, @RequestBody Comunicado comunicadoAtualizado) {
+        return comunicadoRepository.findById(id).map(comunicado -> {
+            comunicado.setTitulo(comunicadoAtualizado.getTitulo());
+            comunicado.setConteudo(comunicadoAtualizado.getConteudo());
+            comunicado.setCategoria(comunicadoAtualizado.getCategoria());
+            comunicado.setImportante(comunicadoAtualizado.isImportante());
+            if (comunicadoAtualizado.getAutor() != null) {
+                comunicado.setAutor(comunicadoAtualizado.getAutor());
+            }
+            Comunicado salvo = comunicadoRepository.save(comunicado);
+            return ResponseEntity.ok(ComunicadoDTO.fromEntity(salvo));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
         if (comunicadoRepository.existsById(id)) {
