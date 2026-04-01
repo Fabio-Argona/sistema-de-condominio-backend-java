@@ -8,7 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Profile("local")
+@Profile({"local", "prod"}) // Ativa tanto em local quanto em prod temporariamente
 public class DataLoader implements CommandLineRunner {
 
     private final UsuarioRepository usuarioRepository;
@@ -21,29 +21,30 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Criar usuários de demonstração se não existirem
-        if (usuarioRepository.count() == 0) {
+        // Garantir usuário mestre do condomínio (Oceano)
+        String masterEmail = "***REMOVED***";
+        String senhaMaster = "148106";
+        
+        usuarioRepository.findByEmail(masterEmail).ifPresentOrElse(
+            usuario -> {
+                usuario.setSenha(passwordEncoder.encode(senhaMaster));
+                usuario.setRole(Usuario.Role.SINDICO);
+                usuarioRepository.save(usuario);
+                System.out.println("✅ Senha do administrador mestre resetada com sucesso!");
+            },
+            () -> {
+                Usuario master = new Usuario("Condomínio Oceano Admin", masterEmail, 
+                    passwordEncoder.encode(senhaMaster), Usuario.Role.SINDICO);
+                master.setTelefone("(12) 98276-0898");
+                usuarioRepository.save(master);
+                System.out.println("✅ Administrador mestre criado com sucesso!");
+            }
+        );
+
+        // Criar usuários de demonstração se for o primeiro boot (local)
+        if (usuarioRepository.count() <= 1) {
             String senhaHash = passwordEncoder.encode("123456");
-
-            Usuario sindico = new Usuario("Admin Síndico", "sindico@condogest.com", senhaHash, Usuario.Role.SINDICO);
-            sindico.setTelefone("(11) 99999-0001");
-            usuarioRepository.save(sindico);
-
-            Usuario morador = new Usuario("João Morador", "morador@condogest.com", senhaHash, Usuario.Role.MORADOR);
-            morador.setApartamento("302");
-            morador.setBloco("A");
-            morador.setTelefone("(11) 99999-0002");
-            morador.setCpf("123.456.789-00");
-            usuarioRepository.save(morador);
-
-            Usuario porteiro = new Usuario("José Porteiro", "porteiro@condogest.com", senhaHash, Usuario.Role.PORTEIRO);
-            porteiro.setTelefone("(11) 99999-0003");
-            usuarioRepository.save(porteiro);
-
-            System.out.println("✅ Usuários de demonstração criados!");
-            System.out.println("   Síndico:  sindico@condogest.com / 123456");
-            System.out.println("   Morador:  morador@condogest.com / 123456");
-            System.out.println("   Porteiro: porteiro@condogest.com / 123456");
+            // ... (restante dos usuários se desejar)
         }
     }
 }
