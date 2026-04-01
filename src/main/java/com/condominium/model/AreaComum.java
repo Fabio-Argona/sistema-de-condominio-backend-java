@@ -26,7 +26,12 @@ public class AreaComum {
     @Column(nullable = false)
     private Boolean disponivel = true;
 
+    @Column(columnDefinition = "TEXT")
+    private String regras;
+
     // Getters and Setters
+    public String getRegras() { return regras; }
+    public void setRegras(String regras) { this.regras = regras; }
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
