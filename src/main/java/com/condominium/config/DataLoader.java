@@ -2,24 +2,28 @@ package com.condominium.config;
 
 import com.condominium.model.Usuario;
 import com.condominium.repository.UsuarioRepository;
-import com.condominium.service.AuthService;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("local")
 public class DataLoader implements CommandLineRunner {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public DataLoader(UsuarioRepository usuarioRepository) {
+    public DataLoader(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) {
         // Criar usuários de demonstração se não existirem
         if (usuarioRepository.count() == 0) {
-            String senhaHash = AuthService.hashPassword("123456");
+            String senhaHash = passwordEncoder.encode("123456");
 
             Usuario sindico = new Usuario("Admin Síndico", "sindico@condogest.com", senhaHash, Usuario.Role.SINDICO);
             sindico.setTelefone("(11) 99999-0001");
