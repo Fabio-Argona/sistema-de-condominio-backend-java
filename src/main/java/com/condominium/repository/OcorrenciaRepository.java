@@ -10,4 +10,5 @@ import java.util.List;
 public interface OcorrenciaRepository extends JpaRepository<Ocorrencia, Long> {
     List<Ocorrencia> findAllByOrderByDataCriacaoDesc();
     List<Ocorrencia> findByMoradorIdOrderByDataCriacaoDesc(Long moradorId);
+    void deleteByMoradorId(Long moradorId);
 }
