@@ -1,13 +1,11 @@
 package com.condominium.controller;
 
-import com.condominium.dto.AreaComumDTO;
 import com.condominium.model.AreaComum;
 import com.condominium.repository.AreaComumRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/areas-comuns")
@@ -20,15 +18,39 @@ public class AreaComumController {
     }
 
     @GetMapping
-    public List<AreaComumDTO> listarTodas() {
-        return areaComumRepository.findAll().stream()
-                .map(AreaComumDTO::fromEntity)
-                .collect(Collectors.toList());
+    public List<AreaComum> listarTodas() {
+        return areaComumRepository.findAll();
     }
 
     @PostMapping
-    public ResponseEntity<AreaComumDTO> criar(@RequestBody AreaComum areaComum) {
-        AreaComum salva = areaComumRepository.save(areaComum);
-        return ResponseEntity.ok(AreaComumDTO.fromEntity(salva));
+    public ResponseEntity<AreaComum> criar(@RequestBody AreaComum area) {
+        AreaComum salva = areaComumRepository.save(area);
+        return ResponseEntity.ok(salva);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<AreaComum> atualizar(@PathVariable Long id, @RequestBody AreaComum areaDados) {
+        return areaComumRepository.findById(id).map(area -> {
+            area.setNome(areaDados.getNome());
+            area.setDescricao(areaDados.getDescricao());
+            area.setCapacidade(areaDados.getCapacidade());
+            area.setValorReserva(areaDados.getValorReserva());
+            area.setHorarioAbertura(areaDados.getHorarioAbertura());
+            area.setHorarioFechamento(areaDados.getHorarioFechamento());
+            area.setDisponivel(areaDados.getDisponivel());
+            area.setRegras(areaDados.getRegras());
+            
+            AreaComum salva = areaComumRepository.save(area);
+            return ResponseEntity.ok(salva);
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletar(@PathVariable Long id) {
+        if (areaComumRepository.existsById(id)) {
+            areaComumRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.notFound().build();
     }
 }
