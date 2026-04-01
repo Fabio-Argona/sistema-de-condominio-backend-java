@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface BoletoRepository extends JpaRepository<Boleto, Long> {
     List<Boleto> findByMoradorIdOrderByDataVencimentoDesc(Long moradorId);
+    void deleteByMoradorId(Long moradorId);
 }
