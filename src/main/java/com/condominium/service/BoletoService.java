@@ -6,6 +6,7 @@ import com.condominium.model.Boleto;
 import com.condominium.model.Usuario;
 import com.condominium.repository.BoletoRepository;
 import com.condominium.repository.UsuarioRepository;
+import com.condominium.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,9 @@ public class BoletoService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private EmailService emailService;
 
     @Transactional(readOnly = true)
     public List<BoletoResponse> listarBoletos() {
@@ -75,4 +79,11 @@ public class BoletoService {
         }
         boletoRepository.deleteById(boletoId);
     }
-}
+    public void enviarEmailBoleto(Long boletoId) {
+        Boleto boleto = boletoRepository.findById(boletoId)
+                .orElseThrow(() -> new RuntimeException("Boleto n\u00e3o encontrado"));
+
+        String emailMorador = boleto.getMorador().getEmail();
+        String nomeMorador  = boleto.getMorador().getNome();
+        emailService.enviarEmailBoleto(emailMorador, nomeMorador, boleto);
+    }}
