@@ -11,7 +11,8 @@ public record UserDTO(
     String bloco,
     String telefone,
     String cpf,
-    boolean ativo
+    boolean ativo,
+    String ultimoAcesso
 ) {
     public static UserDTO fromEntity(Usuario usuario) {
         return new UserDTO(
@@ -23,7 +24,8 @@ public record UserDTO(
             usuario.getBloco(),
             usuario.getTelefone(),
             usuario.getCpf(),
-            usuario.isAtivo()
+            usuario.isAtivo(),
+            usuario.getUltimoAcesso() != null ? usuario.getUltimoAcesso().toString() : null
         );
     }
 }

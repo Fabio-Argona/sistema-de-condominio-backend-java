@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -40,6 +41,8 @@ public class Usuario implements UserDetails {
     private String apartamento;
     private String bloco;
     private boolean ativo = true;
+
+    private LocalDateTime ultimoAcesso;
 
     public enum Role {
         SINDICO, MORADOR, PORTEIRO
@@ -131,6 +134,14 @@ public class Usuario implements UserDetails {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public LocalDateTime getUltimoAcesso() {
+        return ultimoAcesso;
+    }
+
+    public void setUltimoAcesso(LocalDateTime ultimoAcesso) {
+        this.ultimoAcesso = ultimoAcesso;
     }
 
     public String getCpf() {
