@@ -3,10 +3,14 @@ package com.condominium.service;
 import com.condominium.dto.LoginRequest;
 import com.condominium.dto.LoginResponse;
 import com.condominium.dto.UserDTO;
+import com.condominium.model.LogAcesso;
 import com.condominium.model.Usuario;
+import com.condominium.repository.LogAcessoRepository;
 import com.condominium.repository.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 public class AuthService {
@@ -15,15 +19,17 @@ public class AuthService {
     private final JwtService jwtService;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+    private final LogAcessoRepository logAcessoRepository;
 
-    public AuthService(UsuarioRepository usuarioRepository, JwtService jwtService, EmailService emailService, PasswordEncoder passwordEncoder) {
+    public AuthService(UsuarioRepository usuarioRepository, JwtService jwtService, EmailService emailService, PasswordEncoder passwordEncoder, LogAcessoRepository logAcessoRepository) {
         this.usuarioRepository = usuarioRepository;
         this.jwtService = jwtService;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.logAcessoRepository = logAcessoRepository;
     }
 
-    public LoginResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request, String ip) {
         System.out.println("Tentativa de login para: " + request.email());
         
         Usuario usuario = usuarioRepository.findByEmail(request.email())
@@ -45,6 +51,18 @@ public class AuthService {
             System.out.println("Usuário desativado: " + request.email());
             throw new RuntimeException("Usuário desativado");
         }
+
+        LocalDateTime agora = LocalDateTime.now();
+        usuario.setUltimoAcesso(agora);
+        usuarioRepository.save(usuario);
+
+        logAcessoRepository.save(new LogAcesso(
+            usuario.getNome(),
+            usuario.getEmail(),
+            usuario.getRole().name(),
+            agora,
+            ip
+        ));
 
         System.out.println("Login bem-sucedido para: " + request.email() + " (Role: " + usuario.getRole() + ")");
         String token = jwtService.generateToken(usuario);

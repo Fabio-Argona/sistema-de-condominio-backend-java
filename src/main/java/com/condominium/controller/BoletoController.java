@@ -33,6 +33,11 @@ public class BoletoController {
         return ResponseEntity.ok(boletoService.gerarBoleto(request));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<BoletoResponse> atualizar(@PathVariable Long id, @RequestBody BoletoRequest request) {
+        return ResponseEntity.ok(boletoService.atualizarBoleto(id, request));
+    }
+
     @PutMapping("/{id}/pagar")
     public ResponseEntity<BoletoResponse> pagar(@PathVariable Long id) {
         return ResponseEntity.ok(boletoService.pagarBoleto(id));
