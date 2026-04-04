@@ -22,7 +22,7 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // Garantir usuário mestre do condomínio (Oceano)
-        String masterEmail = "***REMOVED***";
+        String masterEmail = "residencial.oceano.1481@gmail.com";
         String senhaMaster = "148106";
         
         usuarioRepository.findByEmail(masterEmail).ifPresentOrElse(

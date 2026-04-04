@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/boletos")
@@ -32,6 +33,11 @@ public class BoletoController {
         return ResponseEntity.ok(boletoService.gerarBoleto(request));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<BoletoResponse> atualizar(@PathVariable Long id, @RequestBody BoletoRequest request) {
+        return ResponseEntity.ok(boletoService.atualizarBoleto(id, request));
+    }
+
     @PutMapping("/{id}/pagar")
     public ResponseEntity<BoletoResponse> pagar(@PathVariable Long id) {
         return ResponseEntity.ok(boletoService.pagarBoleto(id));
@@ -41,5 +47,11 @@ public class BoletoController {
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
         boletoService.deletarBoleto(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/enviar-email")
+    public ResponseEntity<Map<String, String>> enviarEmail(@PathVariable Long id) {
+        boletoService.enviarEmailBoleto(id);
+        return ResponseEntity.ok(Map.of("message", "E-mail enviado com sucesso!"));
     }
 }

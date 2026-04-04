@@ -3,6 +3,7 @@ package com.condominium.controller;
 import com.condominium.dto.LoginRequest;
 import com.condominium.dto.LoginResponse;
 import com.condominium.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,9 +21,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
         try {
-            LoginResponse response = authService.login(request);
+            String ip = httpRequest.getHeader("X-Forwarded-For");
+            if (ip == null || ip.isBlank()) ip = httpRequest.getRemoteAddr();
+            LoginResponse response = authService.login(request, ip);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(401)
