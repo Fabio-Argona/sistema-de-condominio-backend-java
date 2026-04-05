@@ -27,7 +27,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("residencial.oceano.1481@gmail.com");
+            helper.setFrom("***REMOVED***");
             helper.setTo(destinatario);
             helper.setSubject("🔑 Residencial Oceano - Recuperação de Senha");
             helper.setText(buildHtmlEmail(nomeUsuario, novaSenha), true);
@@ -44,7 +44,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("residencial.oceano.1481@gmail.com");
+            helper.setFrom("***REMOVED***");
             helper.setTo(destinatarioSindico);
             helper.setSubject("🔔 Nova Solicitação de Reserva - " + areaNome);
             helper.setText(buildNovaReservaHtml(nomeMorador, areaNome, data, horario), true);
@@ -62,7 +62,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             String statusIcon = "APROVADA".equalsIgnoreCase(status) ? "✅" : "❌";
-            helper.setFrom("residencial.oceano.1481@gmail.com");
+            helper.setFrom("***REMOVED***");
             helper.setTo(destinatarioMorador);
             helper.setSubject(statusIcon + " Atualização de Reserva - " + areaNome);
             helper.setText(buildStatusReservaHtml(areaNome, data, horario, status), true);
@@ -79,7 +79,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("residencial.oceano.1481@gmail.com");
+            helper.setFrom("***REMOVED***");
             helper.setTo(destinatario);
             helper.setSubject("🏠 Residencial Oceano - Bem-vindo(a) ao Condomínio!");
             helper.setText(buildConviteHtml(nomeUsuario, destinatario, senhaTemporaria, apartamento, bloco), true);
@@ -351,7 +351,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("residencial.oceano.1481@gmail.com");
+            helper.setFrom("***REMOVED***");
             helper.setTo(destinatario);
             helper.setSubject("💰 Residencial Oceano - Boleto Disponível");
 

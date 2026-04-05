@@ -61,7 +61,8 @@ public class AuthService {
             usuario.getEmail(),
             usuario.getRole().name(),
             agora,
-            ip
+            ip,
+            "Login"
         ));
 
         System.out.println("Login bem-sucedido para: " + request.email() + " (Role: " + usuario.getRole() + ")");

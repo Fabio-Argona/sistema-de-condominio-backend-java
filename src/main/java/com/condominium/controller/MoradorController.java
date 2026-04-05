@@ -160,4 +160,23 @@ public class MoradorController {
             return ResponseEntity.ok(UserDTO.fromEntity(salvo));
         }).orElse(ResponseEntity.notFound().build());
     }
+
+    @PatchMapping("/{id}/role")
+    public ResponseEntity<UserDTO> alterarRole(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String roleStr = body.get("role");
+        if (roleStr == null || roleStr.isBlank()) {
+            return ResponseEntity.badRequest().build();
+        }
+        Usuario.Role novaRole;
+        try {
+            novaRole = Usuario.Role.valueOf(roleStr);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+        return usuarioRepository.findById(id).map(morador -> {
+            morador.setRole(novaRole);
+            Usuario salvo = usuarioRepository.save(morador);
+            return ResponseEntity.ok(UserDTO.fromEntity(salvo));
+        }).orElse(ResponseEntity.notFound().build());
+    }
 }
