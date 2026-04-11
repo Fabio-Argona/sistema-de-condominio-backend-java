@@ -2,6 +2,7 @@ package com.condominium.config;
 
 import com.condominium.model.Usuario;
 import com.condominium.repository.UsuarioRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +15,12 @@ public class DataLoader implements CommandLineRunner {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${app.master.email}")
+    private String masterEmail;
+
+    @Value("${app.master.senha}")
+    private String senhaMaster;
+
     public DataLoader(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
@@ -22,8 +29,6 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) {
         // Garantir usuário mestre do condomínio (Oceano)
-        String masterEmail = "residencial.oceano.1481@gmail.com";
-        String senhaMaster = "148106";
         
         usuarioRepository.findByEmail(masterEmail).ifPresentOrElse(
             usuario -> {
