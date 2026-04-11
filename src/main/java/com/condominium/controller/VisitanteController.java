@@ -7,12 +7,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/visitantes")
+@PreAuthorize("hasAnyRole('SINDICO', 'PORTEIRO')")
 @Tag(name = "Visitantes", description = "Controle de acesso de visitantes")
 @SecurityRequirement(name = "bearerAuth")
 public class VisitanteController {

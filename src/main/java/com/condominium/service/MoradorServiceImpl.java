@@ -55,7 +55,7 @@ public class MoradorServiceImpl implements IMoradorService {
         }
         morador.setRole(Usuario.Role.MORADOR);
         morador.setAtivo(true);
-        String senhaTemporaria = String.format("%06d", new java.util.Random().nextInt(999999));
+        String senhaTemporaria = String.format("%06d", new java.security.SecureRandom().nextInt(999999));
         morador.setSenha(passwordEncoder.encode(senhaTemporaria));
         Usuario salvo = usuarioRepository.save(morador);
 
@@ -81,7 +81,7 @@ public class MoradorServiceImpl implements IMoradorService {
     public Map<String, Object> reenviarConvite(Long id) {
         var morador = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Morador", id));
-        String novaSenha = String.format("%06d", new java.util.Random().nextInt(999999));
+        String novaSenha = String.format("%06d", new java.security.SecureRandom().nextInt(999999));
         morador.setSenha(passwordEncoder.encode(novaSenha));
         usuarioRepository.save(morador);
 

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 @Tag(name = "Boletos", description = "Geração e gestão de boletos")
 @SecurityRequirement(name = "bearerAuth")
+@PreAuthorize("hasRole('SINDICO')")
 public class BoletoController {
 
     @Autowired
@@ -31,6 +33,7 @@ public class BoletoController {
 
     @Operation(summary = "Listar boletos por morador")
     @GetMapping("/morador/{moradorId}")
+    @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
     public ResponseEntity<List<BoletoResponse>> listarPorMorador(@PathVariable Long moradorId) {
         return ResponseEntity.ok(boletoService.listarBoletosPorMorador(moradorId));
     }
@@ -49,6 +52,7 @@ public class BoletoController {
 
     @Operation(summary = "Registrar pagamento de boleto")
     @PutMapping("/{id}/pagar")
+    @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
     public ResponseEntity<BoletoResponse> pagar(@PathVariable Long id) {
         return ResponseEntity.ok(boletoService.pagarBoleto(id));
     }

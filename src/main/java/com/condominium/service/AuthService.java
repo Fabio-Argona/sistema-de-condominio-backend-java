@@ -75,7 +75,7 @@ public class AuthService {
                 .orElseThrow(() -> new RuntimeException("E-mail não encontrado em nossa base de dados."));
 
         // Gera senha temporária de 6 digitos aleatórios
-        String novaSenha = String.format("%06d", new java.util.Random().nextInt(999999));
+        String novaSenha = String.format("%06d", new java.security.SecureRandom().nextInt(999999));
         usuario.setSenha(passwordEncoder.encode(novaSenha));
         usuarioRepository.save(usuario);
 

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,18 +26,21 @@ public class ReservaController {
 
     @Operation(summary = "Listar todas as reservas")
     @GetMapping
+    @PreAuthorize("hasRole('SINDICO')")
     public List<ReservaDTO> listarTodas() {
         return reservaService.listarTodas();
     }
 
     @Operation(summary = "Listar reservas de um morador")
     @GetMapping("/morador/{moradorId}")
+    @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
     public List<ReservaDTO> listarPorMorador(@PathVariable Long moradorId) {
         return reservaService.listarPorMorador(moradorId);
     }
 
     @Operation(summary = "Criar reserva", description = "Retorna 409 se houver conflito de horário na área comum.")
     @PostMapping("/morador/{moradorId}/area/{areaId}")
+    @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
     public ResponseEntity<?> criar(
             @PathVariable Long moradorId,
             @PathVariable Long areaId,
@@ -50,6 +54,7 @@ public class ReservaController {
 
     @Operation(summary = "Atualizar status da reserva (APROVADA / REJEITADA / CANCELADA)")
     @PatchMapping("/{id}/status")
+    @PreAuthorize("hasRole('SINDICO')")
     public ResponseEntity<ReservaDTO> atualizarStatus(@PathVariable Long id, @RequestBody Reserva dadosAtualizacao) {
         return ResponseEntity.ok(reservaService.atualizarStatus(id, dadosAtualizacao));
     }

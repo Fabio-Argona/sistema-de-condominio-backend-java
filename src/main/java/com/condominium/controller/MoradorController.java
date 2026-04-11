@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Map;
 @RequestMapping("/api/moradores")
 @Tag(name = "Moradores", description = "Gestão de moradores (SINDICO)")
 @SecurityRequirement(name = "bearerAuth")
+@PreAuthorize("hasRole('SINDICO')")
 public class MoradorController {
 
     private final IMoradorService moradorService;

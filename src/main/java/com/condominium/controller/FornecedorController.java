@@ -7,12 +7,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/fornecedores")
+@PreAuthorize("hasRole('SINDICO')")
 @Tag(name = "Fornecedores", description = "Cadastro de fornecedores")
 @SecurityRequirement(name = "bearerAuth")
 public class FornecedorController {
@@ -31,6 +33,7 @@ public class FornecedorController {
 
     @Operation(summary = "Listar fornecedores de um morador")
     @GetMapping("/morador/{moradorId}")
+    @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
     public List<FornecedorDTO> listarPorMorador(@PathVariable Long moradorId) {
         return fornecedorService.listarPorMorador(moradorId);
     }
@@ -43,6 +46,7 @@ public class FornecedorController {
 
     @Operation(summary = "Cadastrar fornecedor por morador")
     @PostMapping("/morador/{moradorId}")
+    @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
     public ResponseEntity<FornecedorDTO> criarPorMorador(@PathVariable Long moradorId, @RequestBody Fornecedor fornecedor) {
         return ResponseEntity.ok(fornecedorService.criarParaMorador(moradorId, fornecedor));
     }
@@ -55,6 +59,7 @@ public class FornecedorController {
 
     @Operation(summary = "Atualizar fornecedor por morador (somente dono)")
     @PutMapping("/morador/{moradorId}/{id}")
+    @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
     public ResponseEntity<FornecedorDTO> atualizarPorMorador(@PathVariable Long moradorId, @PathVariable Long id, @RequestBody Fornecedor dados) {
         return ResponseEntity.ok(fornecedorService.atualizarParaMorador(moradorId, id, dados));
     }
@@ -68,6 +73,7 @@ public class FornecedorController {
 
     @Operation(summary = "Deletar fornecedor por morador (somente dono)")
     @DeleteMapping("/morador/{moradorId}/{id}")
+    @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
     public ResponseEntity<Void> deletarPorMorador(@PathVariable Long moradorId, @PathVariable Long id) {
         fornecedorService.deletarParaMorador(moradorId, id);
         return ResponseEntity.noContent().build();

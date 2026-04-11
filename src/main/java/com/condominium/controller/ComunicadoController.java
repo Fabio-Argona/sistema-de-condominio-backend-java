@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,24 +26,28 @@ public class ComunicadoController {
 
     @Operation(summary = "Listar todos os comunicados")
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public List<ComunicadoDTO> listarTodos() {
         return comunicadoService.listarTodos();
     }
 
     @Operation(summary = "Publicar novo comunicado")
     @PostMapping
+    @PreAuthorize("hasRole('SINDICO')")
     public ResponseEntity<ComunicadoDTO> criar(@RequestBody Comunicado comunicado) {
         return ResponseEntity.ok(comunicadoService.criar(comunicado));
     }
 
     @Operation(summary = "Atualizar comunicado")
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('SINDICO')")
     public ResponseEntity<ComunicadoDTO> atualizar(@PathVariable Long id, @RequestBody Comunicado comunicadoAtualizado) {
         return ResponseEntity.ok(comunicadoService.atualizar(id, comunicadoAtualizado));
     }
 
     @Operation(summary = "Remover comunicado")
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SINDICO')")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
         comunicadoService.remover(id);
         return ResponseEntity.ok().build();

@@ -7,12 +7,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/unidades")
+@PreAuthorize("hasRole('SINDICO')")
 @Tag(name = "Unidades", description = "Gestão das unidades/apartamentos")
 @SecurityRequirement(name = "bearerAuth")
 public class UnidadeController {
