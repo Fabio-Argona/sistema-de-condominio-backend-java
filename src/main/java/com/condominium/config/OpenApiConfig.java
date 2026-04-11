@@ -15,10 +15,10 @@ import java.util.List;
 public class OpenApiConfig {
 
     @Bean
-    public OpenAPI condoGestOpenAPI() {
+    public OpenAPI condominiumOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("CondoGest API")
+                        .title("condominium API")
                         .description("""
                                 API REST para gestão de condomínio residencial.
                                 
@@ -28,7 +28,7 @@ public class OpenApiConfig {
                                 """)
                         .version("1.0.0")
                         .contact(new Contact()
-                                .name("CondoGest")
+                                .name("condominium")
                                 .email("***REMOVED***")))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",
