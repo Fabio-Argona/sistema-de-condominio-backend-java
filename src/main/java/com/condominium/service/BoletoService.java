@@ -99,9 +99,19 @@ public class BoletoService {
     }
     public void enviarEmailBoleto(Long boletoId) {
         Boleto boleto = boletoRepository.findById(boletoId)
-                .orElseThrow(() -> new RuntimeException("Boleto n\u00e3o encontrado"));
+                .orElseThrow(() -> new RuntimeException("Boleto não encontrado"));
 
         String emailMorador = boleto.getMorador().getEmail();
         String nomeMorador  = boleto.getMorador().getNome();
         emailService.enviarEmailBoleto(emailMorador, nomeMorador, boleto);
-    }}
+    }
+
+    public void enviarCobrancaBoleto(Long boletoId) {
+        Boleto boleto = boletoRepository.findById(boletoId)
+                .orElseThrow(() -> new RuntimeException("Boleto não encontrado"));
+
+        String emailMorador = boleto.getMorador().getEmail();
+        String nomeMorador  = boleto.getMorador().getNome();
+        emailService.enviarEmailCobranca(emailMorador, nomeMorador, boleto);
+    }
+}

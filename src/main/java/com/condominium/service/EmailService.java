@@ -346,6 +346,143 @@ public class EmailService {
     }
 
     @Async
+    public void enviarEmailCobranca(String destinatario, String nomeMorador, Boleto boleto) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom("***REMOVED***");
+            helper.setTo(destinatario);
+            helper.setSubject("⚠️ IMPORTANTE: Residencial Oceano - Boleto Vencido em Aberto");
+
+            String dataVenc = boleto.getDataVencimento()
+                    .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            String valor = String.format("R$ %,.2f", boleto.getValor());
+
+            helper.setText(buildCobrancaHtml(nomeMorador, boleto.getDescricao(), valor, dataVenc), true);
+
+            mailSender.send(message);
+            System.out.println("[EmailService] E-mail de cobrança enviado para: " + destinatario);
+        } catch (Exception e) {
+            System.err.println("[EmailService] Falha ao enviar e-mail de cobrança: " + e.getMessage());
+            throw new RuntimeException("Erro ao enviar e-mail de cobrança: " + e.getMessage(), e);
+        }
+    }
+
+    private String buildCobrancaHtml(String nome, String descricao, String valor, String vencimento) {
+        return """
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin:0; padding:0; background-color:#fef2f2; font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+                <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="background-color:#fef2f2; padding:40px 20px;">
+                    <tr>
+                        <td align="center">
+                            <table role="presentation" width="560" cellspacing="0" cellpadding="0" style="background-color:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+                                <!-- Header -->
+                                <tr>
+                                    <td style="background: linear-gradient(135deg, #7f1d1d 0%%, #dc2626 50%%, #b91c1c 100%%); padding:36px 40px; text-align:center;">
+                                        <table role="presentation" width="100%%" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td align="center">
+                                                    <div style="display:inline-block; border-radius:2px; padding:2px; margin-bottom:2px;">
+                                                        <img src="https://sistema-de-condominio-frontend-next.vercel.app/oceano-logo.png" alt="Logo Oceano" width="180" style="display:block; border-radius:8px; padding:2px; object-fit:contain;" />
+                                                    </div>
+                                                    <p style="margin:0 0 -2px 0; font-size:11px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.7); text-transform:uppercase;">Residencial</p>
+                                                    <h1 style="margin:0; font-size:32px; font-weight:900; color:#ffffff; letter-spacing:1px;">OCEANO</h1>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <!-- Alert Banner -->
+                                <tr>
+                                    <td style="background-color:#fef2f2; border-bottom:2px solid #fecaca; padding:16px 40px; text-align:center;">
+                                        <p style="margin:0; font-size:15px; font-weight:700; color:#dc2626; letter-spacing:1px;">⚠️ AVISO DE COBRANÇA — BOLETO VENCIDO</p>
+                                    </td>
+                                </tr>
+                                <!-- Content -->
+                                <tr>
+                                    <td style="padding:40px;">
+                                        <h2 style="margin:0 0 8px 0; font-size:22px; font-weight:700; color:#1e293b;">Boleto em aberto identificado</h2>
+                                        <p style="margin:0 0 28px 0; font-size:15px; color:#64748b; line-height:1.6;">
+                                            Olá, <strong style="color:#1e293b;">%s</strong>! Identificamos um boleto vencido em seu nome. Regularize sua situação o quanto antes para evitar juros e encargos adicionais.
+                                        </p>
+                                        <!-- Boleto Details Box -->
+                                        <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="margin-bottom:20px;">
+                                            <tr>
+                                                <td style="background: linear-gradient(135deg, #fff1f2 0%%, #fee2e2 100%%); border:2px solid #fecaca; border-radius:12px; padding:24px;">
+                                                    <table role="presentation" width="100%%" cellspacing="0" cellpadding="0">
+                                                        <tr>
+                                                            <td style="padding:8px 0;">
+                                                                <p style="margin:0; font-size:12px; font-weight:600; color:#dc2626; text-transform:uppercase; letter-spacing:1px;">Descrição</p>
+                                                                <p style="margin:4px 0 0 0; font-size:16px; font-weight:600; color:#1e293b;">%s</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding:8px 0; border-top:1px solid #fecaca;">
+                                                                <p style="margin:0; font-size:12px; font-weight:600; color:#dc2626; text-transform:uppercase; letter-spacing:1px;">Valor</p>
+                                                                <p style="margin:4px 0 0 0; font-size:28px; font-weight:900; color:#b91c1c; letter-spacing:2px;">%s</p>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="padding:8px 0; border-top:1px solid #fecaca;">
+                                                                <p style="margin:0; font-size:12px; font-weight:600; color:#dc2626; text-transform:uppercase; letter-spacing:1px;">Vencido em</p>
+                                                                <p style="margin:4px 0 0 0; font-size:20px; font-weight:800; color:#dc2626;">%s</p>
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <!-- Warning Note -->
+                                        <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="margin-bottom:28px;">
+                                            <tr>
+                                                <td style="background-color:#fef2f2; border-left:4px solid #dc2626; border-radius:0 8px 8px 0; padding:16px 20px;">
+                                                    <p style="margin:0; font-size:13px; color:#7f1d1d; line-height:1.6;"><strong>⚠️ Importante:</strong> Acesse o portal do condomínio para regularizar o pagamento e baixar o boleto atualizado.</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <!-- Button -->
+                                        <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="margin-bottom:28px;">
+                                            <tr>
+                                                <td align="center">
+                                                    <a href="https://sistema-de-condominio-frontend-next.vercel.app/login" target="_blank" style="background-color:#dc2626; color:#ffffff; padding:18px 36px; text-decoration:none; border-radius:12px; font-weight:700; font-size:16px; display:inline-block; border:1px solid #b91c1c;">Acessar Portal e Regularizar</a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <p style="margin:0; font-size:14px; color:#94a3b8; line-height:1.6; text-align:center;">
+                                            Em caso de dúvidas, entre em contato com a administração do condomínio.
+                                        </p>
+                                    </td>
+                                </tr>
+                                <!-- Footer -->
+                                <tr>
+                                    <td style="background-color:#f8fafc; border-top:1px solid #e2e8f0; padding:24px 40px; text-align:center;">
+                                        <p style="margin:0 0 4px 0; font-size:13px; font-weight:600; color:#475569;">Administração - Residencial Oceano</p>
+                                        <p style="margin:0; font-size:12px; color:#94a3b8;">Este é um e-mail automático, por favor não responda.</p>
+                                    </td>
+                                </tr>
+                            </table>
+                            <!-- Sub-footer -->
+                            <table role="presentation" width="560" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td style="padding:20px 40px; text-align:center;">
+                                        <p style="margin:0; font-size:11px; color:#94a3b8;">© 2026 Residencial Oceano. Todos os direitos reservados.</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>
+            """.formatted(nome, descricao, valor, vencimento);
+    }
+
     public void enviarEmailBoleto(String destinatario, String nomeMorador, Boleto boleto) {
         try {
             MimeMessage message = mailSender.createMimeMessage();

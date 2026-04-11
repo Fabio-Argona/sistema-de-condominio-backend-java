@@ -54,4 +54,10 @@ public class BoletoController {
         boletoService.enviarEmailBoleto(id);
         return ResponseEntity.ok(Map.of("message", "E-mail enviado com sucesso!"));
     }
+
+    @PostMapping("/{id}/enviar-cobranca")
+    public ResponseEntity<Map<String, String>> enviarCobranca(@PathVariable Long id) {
+        boletoService.enviarCobrancaBoleto(id);
+        return ResponseEntity.ok(Map.of("message", "E-mail de cobrança enviado com sucesso!"));
+    }
 }
