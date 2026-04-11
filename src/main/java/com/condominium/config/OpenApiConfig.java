@@ -28,8 +28,8 @@ public class OpenApiConfig {
                                 """)
                         .version("1.0.0")
                         .contact(new Contact()
-                                .name("condominium")
-                                .email("***REMOVED***")))
+                                .name("Residencial Oceano")
+                                .email("residencial.oceano.1481@gmail.com")))
                 .components(new Components()
                         .addSecuritySchemes("bearerAuth",
                                 new SecurityScheme()

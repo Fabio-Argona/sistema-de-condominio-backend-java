@@ -3,6 +3,7 @@ package com.condominium.service;
 import com.condominium.model.Boleto;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -17,6 +18,9 @@ public class EmailService {
 
     private final JavaMailSender mailSender;
 
+    @Value("${spring.mail.username}")
+    private String mailFrom;
+
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
@@ -27,7 +31,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("***REMOVED***");
+            helper.setFrom(mailFrom);
             helper.setTo(destinatario);
             helper.setSubject("🔑 Residencial Oceano - Recuperação de Senha");
             helper.setText(buildHtmlEmail(nomeUsuario, novaSenha), true);
@@ -44,7 +48,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("***REMOVED***");
+            helper.setFrom(mailFrom);
             helper.setTo(destinatarioSindico);
             helper.setSubject("🔔 Nova Solicitação de Reserva - " + areaNome);
             helper.setText(buildNovaReservaHtml(nomeMorador, areaNome, data, horario), true);
@@ -62,7 +66,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             String statusIcon = "APROVADA".equalsIgnoreCase(status) ? "✅" : "❌";
-            helper.setFrom("***REMOVED***");
+            helper.setFrom(mailFrom);
             helper.setTo(destinatarioMorador);
             helper.setSubject(statusIcon + " Atualização de Reserva - " + areaNome);
             helper.setText(buildStatusReservaHtml(areaNome, data, horario, status), true);
@@ -79,7 +83,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("***REMOVED***");
+            helper.setFrom(mailFrom);
             helper.setTo(destinatario);
             helper.setSubject("🏠 Residencial Oceano - Bem-vindo(a) ao Condomínio!");
             helper.setText(buildConviteHtml(nomeUsuario, destinatario, senhaTemporaria, apartamento, bloco), true);
@@ -351,7 +355,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("***REMOVED***");
+            helper.setFrom(mailFrom);
             helper.setTo(destinatario);
             helper.setSubject("⚠️ IMPORTANTE: Residencial Oceano - Boleto Vencido em Aberto");
 
@@ -488,7 +492,7 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("***REMOVED***");
+            helper.setFrom(mailFrom);
             helper.setTo(destinatario);
             helper.setSubject("💰 Residencial Oceano - Boleto Disponível");
 

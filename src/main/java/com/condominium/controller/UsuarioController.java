@@ -34,6 +34,9 @@ public class UsuarioController {
         // Hasheia a senha antes de salvar
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         
+        // Força role MORADOR para evitar escalada de privilégios via API pública
+        usuario.setRole(Usuario.Role.MORADOR);
+
         // Garante que o usuário está ativo
         usuario.setAtivo(true);
 
