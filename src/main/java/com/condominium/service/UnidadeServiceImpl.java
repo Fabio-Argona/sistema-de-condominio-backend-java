@@ -6,11 +6,13 @@ import com.condominium.model.Unidade;
 import com.condominium.repository.UnidadeRepository;
 import com.condominium.service.impl.IUnidadeService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class UnidadeServiceImpl implements IUnidadeService {
 
     private final UnidadeRepository unidadeRepository;

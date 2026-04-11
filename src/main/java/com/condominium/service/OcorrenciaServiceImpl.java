@@ -7,11 +7,13 @@ import com.condominium.repository.OcorrenciaRepository;
 import com.condominium.repository.UsuarioRepository;
 import com.condominium.service.impl.IOcorrenciaService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class OcorrenciaServiceImpl implements IOcorrenciaService {
 
     private final OcorrenciaRepository ocorrenciaRepository;
