@@ -1,4 +1,4 @@
-package com.condominium.service;
+package com.condominium.service.impl;
 
 import com.condominium.dto.VisitanteDTO;
 import com.condominium.model.Visitante;

@@ -7,6 +7,7 @@ import com.condominium.model.Boleto;
 import com.condominium.model.Usuario;
 import com.condominium.repository.BoletoRepository;
 import com.condominium.repository.UsuarioRepository;
+import com.condominium.service.impl.IBoletoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

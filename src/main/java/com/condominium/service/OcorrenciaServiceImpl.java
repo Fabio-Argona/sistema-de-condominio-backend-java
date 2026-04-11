@@ -1,11 +1,11 @@
-package com.condominium.service.impl;
+package com.condominium.service;
 
 import com.condominium.dto.OcorrenciaDTO;
 import com.condominium.exception.ResourceNotFoundException;
 import com.condominium.model.Ocorrencia;
 import com.condominium.repository.OcorrenciaRepository;
 import com.condominium.repository.UsuarioRepository;
-import com.condominium.service.IOcorrenciaService;
+import com.condominium.service.impl.IOcorrenciaService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

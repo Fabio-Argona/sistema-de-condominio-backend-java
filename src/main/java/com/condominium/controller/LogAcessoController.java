@@ -4,6 +4,9 @@ import com.condominium.model.LogAcesso;
 import com.condominium.model.Usuario;
 import com.condominium.repository.LogAcessoRepository;
 import com.condominium.repository.UsuarioRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +20,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/log-acessos")
 @CrossOrigin(origins = "*")
+@Tag(name = "Log de Acessos", description = "Auditoria de acessos ao sistema")
+@SecurityRequirement(name = "bearerAuth")
 public class LogAcessoController {
 
     private final LogAcessoRepository logAcessoRepository;
@@ -27,11 +32,13 @@ public class LogAcessoController {
         this.usuarioRepository = usuarioRepository;
     }
 
+    @Operation(summary = "Listar todos os logs de acesso")
     @GetMapping
     public ResponseEntity<List<LogAcesso>> listarTodos() {
         return ResponseEntity.ok(logAcessoRepository.findAllByOrderByDataHoraDesc());
     }
 
+    @Operation(summary = "Registrar acesso do usuário autenticado")
     @PostMapping
     public ResponseEntity<Void> registrarAcesso(
             @AuthenticationPrincipal UserDetails userDetails,

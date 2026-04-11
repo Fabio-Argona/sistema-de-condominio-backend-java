@@ -1,10 +1,10 @@
-package com.condominium.service.impl;
+package com.condominium.service;
 
 import com.condominium.dto.VisitanteDTO;
 import com.condominium.exception.ResourceNotFoundException;
 import com.condominium.model.Visitante;
 import com.condominium.repository.VisitanteRepository;
-import com.condominium.service.IVisitanteService;
+import com.condominium.service.impl.IVisitanteService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

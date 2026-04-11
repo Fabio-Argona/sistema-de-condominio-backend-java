@@ -1,4 +1,4 @@
-package com.condominium.service.impl;
+package com.condominium.service;
 
 import com.condominium.dto.ReservaDTO;
 import com.condominium.exception.ResourceNotFoundException;
@@ -6,8 +6,7 @@ import com.condominium.model.Reserva;
 import com.condominium.repository.AreaComumRepository;
 import com.condominium.repository.ReservaRepository;
 import com.condominium.repository.UsuarioRepository;
-import com.condominium.service.EmailService;
-import com.condominium.service.IReservaService;
+import com.condominium.service.impl.IReservaService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

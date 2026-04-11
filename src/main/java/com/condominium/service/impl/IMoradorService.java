@@ -1,4 +1,4 @@
-package com.condominium.service;
+package com.condominium.service.impl;
 
 import com.condominium.dto.UserDTO;
 import com.condominium.model.Usuario;

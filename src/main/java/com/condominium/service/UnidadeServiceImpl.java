@@ -1,10 +1,10 @@
-package com.condominium.service.impl;
+package com.condominium.service;
 
 import com.condominium.dto.UnidadeDTO;
 import com.condominium.exception.ResourceNotFoundException;
 import com.condominium.model.Unidade;
 import com.condominium.repository.UnidadeRepository;
-import com.condominium.service.IUnidadeService;
+import com.condominium.service.impl.IUnidadeService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

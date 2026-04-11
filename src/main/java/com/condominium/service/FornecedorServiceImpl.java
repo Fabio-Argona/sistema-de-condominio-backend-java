@@ -1,11 +1,11 @@
-package com.condominium.service.impl;
+package com.condominium.service;
 
 import com.condominium.dto.FornecedorDTO;
 import com.condominium.exception.ForbiddenException;
 import com.condominium.exception.ResourceNotFoundException;
 import com.condominium.model.Fornecedor;
 import com.condominium.repository.FornecedorRepository;
-import com.condominium.service.IFornecedorService;
+import com.condominium.service.impl.IFornecedorService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

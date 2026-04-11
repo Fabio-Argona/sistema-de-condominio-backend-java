@@ -1,4 +1,4 @@
-package com.condominium.service;
+package com.condominium.service.impl;
 
 import com.condominium.model.AreaComum;
 

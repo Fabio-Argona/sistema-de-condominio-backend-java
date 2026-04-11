@@ -1,4 +1,4 @@
-package com.condominium.service.impl;
+package com.condominium.service;
 
 import com.condominium.dto.UserDTO;
 import com.condominium.exception.BusinessException;
@@ -8,8 +8,7 @@ import com.condominium.repository.BoletoRepository;
 import com.condominium.repository.OcorrenciaRepository;
 import com.condominium.repository.ReservaRepository;
 import com.condominium.repository.UsuarioRepository;
-import com.condominium.service.EmailService;
-import com.condominium.service.IMoradorService;
+import com.condominium.service.impl.IMoradorService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

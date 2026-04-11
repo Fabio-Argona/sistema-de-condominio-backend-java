@@ -1,9 +1,9 @@
-package com.condominium.service.impl;
+package com.condominium.service;
 
 import com.condominium.exception.ResourceNotFoundException;
 import com.condominium.model.AreaComum;
 import com.condominium.repository.AreaComumRepository;
-import com.condominium.service.IAreaComumService;
+import com.condominium.service.impl.IAreaComumService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

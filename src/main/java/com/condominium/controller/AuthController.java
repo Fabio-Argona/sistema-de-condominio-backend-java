@@ -3,6 +3,11 @@ package com.condominium.controller;
 import com.condominium.dto.LoginRequest;
 import com.condominium.dto.LoginResponse;
 import com.condominium.service.AuthService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +17,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Autenticação", description = "Login e recuperação de senha")
 public class AuthController {
 
     private final AuthService authService;
@@ -20,6 +26,14 @@ public class AuthController {
         this.authService = authService;
     }
 
+    @Operation(
+        summary = "Realizar login",
+        description = "Autentica o usuário e retorna um token JWT válido por 7 dias.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Login bem-sucedido, token retornado"),
+            @ApiResponse(responseCode = "401", description = "Credenciais inválidas", content = @Content)
+        }
+    )
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request, HttpServletRequest httpRequest) {
         try {
@@ -33,6 +47,14 @@ public class AuthController {
         }
     }
 
+    @Operation(
+        summary = "Recuperar senha",
+        description = "Gera uma nova senha temporária e envia por e-mail ao usuário.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Nova senha enviada por e-mail"),
+            @ApiResponse(responseCode = "404", description = "E-mail não encontrado", content = @Content)
+        }
+    )
     @PostMapping("/recuperar-senha")
     public ResponseEntity<?> recuperarSenha(@RequestBody Map<String, String> request) {
         try {

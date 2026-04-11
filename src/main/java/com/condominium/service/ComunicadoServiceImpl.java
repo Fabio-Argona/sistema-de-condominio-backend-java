@@ -1,10 +1,10 @@
-package com.condominium.service.impl;
+package com.condominium.service;
 
 import com.condominium.dto.ComunicadoDTO;
 import com.condominium.exception.ResourceNotFoundException;
 import com.condominium.model.Comunicado;
 import com.condominium.repository.ComunicadoRepository;
-import com.condominium.service.IComunicadoService;
+import com.condominium.service.impl.IComunicadoService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

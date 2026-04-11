@@ -1,10 +1,9 @@
-package com.condominium.service;
+package com.condominium.service.impl;
 
 import com.condominium.dto.ReservaDTO;
 import com.condominium.model.Reserva;
 
 import java.util.List;
-import java.util.Map;
 
 public interface IReservaService {
     List<ReservaDTO> listarTodas();
