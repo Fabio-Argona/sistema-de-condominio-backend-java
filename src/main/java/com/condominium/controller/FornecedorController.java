@@ -2,96 +2,61 @@ package com.condominium.controller;
 
 import com.condominium.dto.FornecedorDTO;
 import com.condominium.model.Fornecedor;
-import com.condominium.repository.FornecedorRepository;
+import com.condominium.service.IFornecedorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/fornecedores")
 public class FornecedorController {
 
-    private final FornecedorRepository fornecedorRepository;
+    private final IFornecedorService fornecedorService;
 
-    public FornecedorController(FornecedorRepository fornecedorRepository) {
-        this.fornecedorRepository = fornecedorRepository;
+    public FornecedorController(IFornecedorService fornecedorService) {
+        this.fornecedorService = fornecedorService;
     }
 
     @GetMapping
     public List<FornecedorDTO> listarTodos() {
-        return fornecedorRepository.findAllByOrderByNomeAsc()
-                .stream()
-                .map(FornecedorDTO::fromEntity)
-                .collect(Collectors.toList());
+        return fornecedorService.listarTodos();
     }
 
     @GetMapping("/morador/{moradorId}")
     public List<FornecedorDTO> listarPorMorador(@PathVariable Long moradorId) {
-        return fornecedorRepository.findByMoradorIdOrderByNomeAsc(moradorId)
-                .stream()
-                .map(FornecedorDTO::fromEntity)
-                .collect(Collectors.toList());
+        return fornecedorService.listarPorMorador(moradorId);
     }
 
     @PostMapping
     public ResponseEntity<FornecedorDTO> criar(@RequestBody Fornecedor fornecedor) {
-        Fornecedor salvo = fornecedorRepository.save(fornecedor);
-        return ResponseEntity.ok(FornecedorDTO.fromEntity(salvo));
+        return ResponseEntity.ok(fornecedorService.criar(fornecedor));
     }
 
     @PostMapping("/morador/{moradorId}")
     public ResponseEntity<FornecedorDTO> criarPorMorador(@PathVariable Long moradorId, @RequestBody Fornecedor fornecedor) {
-        fornecedor.setMoradorId(moradorId);
-        Fornecedor salvo = fornecedorRepository.save(fornecedor);
-        return ResponseEntity.ok(FornecedorDTO.fromEntity(salvo));
+        return ResponseEntity.ok(fornecedorService.criarParaMorador(moradorId, fornecedor));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<FornecedorDTO> atualizar(@PathVariable Long id, @RequestBody Fornecedor dados) {
-        return fornecedorRepository.findById(id).map(f -> {
-            f.setNome(dados.getNome());
-            f.setComentario(dados.getComentario());
-            f.setVigencia(dados.getVigencia());
-            f.setContato(dados.getContato());
-            f.setValor(dados.getValor());
-            return ResponseEntity.ok(FornecedorDTO.fromEntity(fornecedorRepository.save(f)));
-        }).orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(fornecedorService.atualizar(id, dados));
     }
 
     @PutMapping("/morador/{moradorId}/{id}")
     public ResponseEntity<FornecedorDTO> atualizarPorMorador(@PathVariable Long moradorId, @PathVariable Long id, @RequestBody Fornecedor dados) {
-        return fornecedorRepository.findById(id).map(f -> {
-            if (!moradorId.equals(f.getMoradorId())) {
-                return ResponseEntity.status(403).<FornecedorDTO>build();
-            }
-            f.setNome(dados.getNome());
-            f.setComentario(dados.getComentario());
-            f.setVigencia(dados.getVigencia());
-            f.setContato(dados.getContato());
-            f.setValor(dados.getValor());
-            return ResponseEntity.ok(FornecedorDTO.fromEntity(fornecedorRepository.save(f)));
-        }).orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(fornecedorService.atualizarParaMorador(moradorId, id, dados));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Long id) {
-        if (!fornecedorRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        fornecedorRepository.deleteById(id);
+        fornecedorService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/morador/{moradorId}/{id}")
     public ResponseEntity<Void> deletarPorMorador(@PathVariable Long moradorId, @PathVariable Long id) {
-        return fornecedorRepository.findById(id).map(f -> {
-            if (!moradorId.equals(f.getMoradorId())) {
-                return ResponseEntity.status(403).<Void>build();
-            }
-            fornecedorRepository.deleteById(id);
-            return ResponseEntity.noContent().<Void>build();
-        }).orElse(ResponseEntity.notFound().build());
+        fornecedorService.deletarParaMorador(moradorId, id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -2,7 +2,7 @@ package com.condominium.controller;
 
 import com.condominium.dto.BoletoRequest;
 import com.condominium.dto.BoletoResponse;
-import com.condominium.service.BoletoService;
+import com.condominium.service.IBoletoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ import java.util.Map;
 public class BoletoController {
 
     @Autowired
-    private BoletoService boletoService;
+    private IBoletoService boletoService;
 
     @GetMapping
     public ResponseEntity<List<BoletoResponse>> listarTodos() {

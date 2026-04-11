@@ -2,11 +2,11 @@ package com.condominium.service;
 
 import com.condominium.dto.BoletoRequest;
 import com.condominium.dto.BoletoResponse;
+import com.condominium.exception.ResourceNotFoundException;
 import com.condominium.model.Boleto;
 import com.condominium.model.Usuario;
 import com.condominium.repository.BoletoRepository;
 import com.condominium.repository.UsuarioRepository;
-import com.condominium.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class BoletoService {
+public class BoletoService implements IBoletoService {
 
     @Autowired
     private BoletoRepository boletoRepository;
@@ -43,7 +43,7 @@ public class BoletoService {
 
     public BoletoResponse gerarBoleto(BoletoRequest request) {
         Usuario morador = usuarioRepository.findById(request.getMoradorId())
-                .orElseThrow(() -> new RuntimeException("Morador não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Morador", request.getMoradorId()));
 
         Boleto boleto = new Boleto();
         boleto.setMorador(morador);
@@ -60,10 +60,10 @@ public class BoletoService {
 
     public BoletoResponse pagarBoleto(Long boletoId) {
         Boleto boleto = boletoRepository.findById(boletoId)
-                .orElseThrow(() -> new RuntimeException("Boleto não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Boleto", boletoId));
 
         if (boleto.getStatus() == Boleto.StatusBoleto.PAGO) {
-            throw new RuntimeException("Boleto já está pago");
+            throw new com.condominium.exception.BusinessException("Boleto já está pago");
         }
 
         boleto.setStatus(Boleto.StatusBoleto.PAGO);
@@ -75,7 +75,7 @@ public class BoletoService {
 
     public BoletoResponse atualizarBoleto(Long boletoId, BoletoRequest request) {
         Boleto boleto = boletoRepository.findById(boletoId)
-                .orElseThrow(() -> new RuntimeException("Boleto não encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Boleto", boletoId));
 
         if (request.getDescricao() != null) boleto.setDescricao(request.getDescricao());
         if (request.getValor() != null) boleto.setValor(request.getValor());
@@ -93,25 +93,19 @@ public class BoletoService {
 
     public void deletarBoleto(Long boletoId) {
         if (!boletoRepository.existsById(boletoId)) {
-            throw new RuntimeException("Boleto não encontrado");
+            throw new ResourceNotFoundException("Boleto", boletoId);
         }
         boletoRepository.deleteById(boletoId);
     }
     public void enviarEmailBoleto(Long boletoId) {
         Boleto boleto = boletoRepository.findById(boletoId)
-                .orElseThrow(() -> new RuntimeException("Boleto não encontrado"));
-
-        String emailMorador = boleto.getMorador().getEmail();
-        String nomeMorador  = boleto.getMorador().getNome();
-        emailService.enviarEmailBoleto(emailMorador, nomeMorador, boleto);
+                .orElseThrow(() -> new ResourceNotFoundException("Boleto", boletoId));
+        emailService.enviarEmailBoleto(boleto.getMorador().getEmail(), boleto.getMorador().getNome(), boleto);
     }
 
     public void enviarCobrancaBoleto(Long boletoId) {
         Boleto boleto = boletoRepository.findById(boletoId)
-                .orElseThrow(() -> new RuntimeException("Boleto não encontrado"));
-
-        String emailMorador = boleto.getMorador().getEmail();
-        String nomeMorador  = boleto.getMorador().getNome();
-        emailService.enviarEmailCobranca(emailMorador, nomeMorador, boleto);
+                .orElseThrow(() -> new ResourceNotFoundException("Boleto", boletoId));
+        emailService.enviarEmailCobranca(boleto.getMorador().getEmail(), boleto.getMorador().getNome(), boleto);
     }
 }
