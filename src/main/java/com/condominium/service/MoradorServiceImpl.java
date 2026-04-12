@@ -55,6 +55,7 @@ public class MoradorServiceImpl implements IMoradorService {
         }
         morador.setRole(Usuario.Role.MORADOR);
         morador.setAtivo(true);
+        morador.setPrimeiroAcesso(true);
         String senhaTemporaria = String.format("%06d", new java.security.SecureRandom().nextInt(999999));
         morador.setSenha(passwordEncoder.encode(senhaTemporaria));
         Usuario salvo = usuarioRepository.save(morador);

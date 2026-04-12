@@ -77,6 +77,7 @@ public class AuthService {
         // Gera senha temporária de 6 digitos aleatórios
         String novaSenha = String.format("%06d", new java.security.SecureRandom().nextInt(999999));
         usuario.setSenha(passwordEncoder.encode(novaSenha));
+        usuario.setPrimeiroAcesso(true);
         usuarioRepository.save(usuario);
 
         // Envia e-mail real com a nova senha

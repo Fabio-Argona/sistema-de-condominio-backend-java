@@ -3,6 +3,7 @@ package com.condominium.controller;
 import com.condominium.dto.UserDTO;
 import com.condominium.model.Usuario;
 import com.condominium.repository.UsuarioRepository;
+import com.condominium.service.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,10 +21,12 @@ public class UsuarioController {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
-    public UsuarioController(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioController(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     @Operation(summary = "Criar usuário inicial (público)", description = "Endpoint público para criação do primeiro acesso. Não requer autenticação.")
@@ -68,7 +71,13 @@ public class UsuarioController {
         }
 
         usuario.setSenha(passwordEncoder.encode(novaSenha));
+        usuario.setPrimeiroAcesso(false);
         usuarioRepository.save(usuario);
-        return ResponseEntity.ok(Map.of("message", "Senha alterada com sucesso!"));
+        String novoToken = jwtService.generateToken(usuario);
+        return ResponseEntity.ok(Map.of(
+            "message", "Senha alterada com sucesso!",
+            "token", novoToken,
+            "user", UserDTO.fromEntity(usuario)
+        ));
     }
 }

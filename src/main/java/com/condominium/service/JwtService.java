@@ -24,9 +24,9 @@ public class JwtService {
 
         String header = base64Encode("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
         String payload = base64Encode(String.format(
-            "{\"sub\":\"%s\",\"userId\":%d,\"nome\":\"%s\",\"role\":\"%s\",\"iat\":%d,\"exp\":%d}",
+            "{\"sub\":\"%s\",\"userId\":%d,\"nome\":\"%s\",\"role\":\"%s\",\"primeiroAcesso\":%b,\"iat\":%d,\"exp\":%d}",
             usuario.getEmail(), usuario.getId(), usuario.getNome(),
-            usuario.getRole().name(), now / 1000, exp / 1000
+            usuario.getRole().name(), usuario.isPrimeiroAcesso(), now / 1000, exp / 1000
         ));
 
         String content = header + "." + payload;

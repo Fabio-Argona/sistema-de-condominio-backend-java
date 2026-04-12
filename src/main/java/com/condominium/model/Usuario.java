@@ -42,6 +42,8 @@ public class Usuario implements UserDetails {
     private String bloco;
     private boolean ativo = true;
 
+    private boolean primeiroAcesso = false;
+
     private LocalDateTime ultimoAcesso;
 
     public enum Role {
@@ -182,5 +184,13 @@ public class Usuario implements UserDetails {
 
     public void setAtivo(boolean ativo) {
         this.ativo = ativo;
+    }
+
+    public boolean isPrimeiroAcesso() {
+        return primeiroAcesso;
+    }
+
+    public void setPrimeiroAcesso(boolean primeiroAcesso) {
+        this.primeiroAcesso = primeiroAcesso;
     }
 }
