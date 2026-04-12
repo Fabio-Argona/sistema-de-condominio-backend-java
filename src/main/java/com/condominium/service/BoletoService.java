@@ -42,6 +42,7 @@ public class BoletoService implements IBoletoService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public BoletoResponse gerarBoleto(BoletoRequest request) {
         Usuario morador = usuarioRepository.findById(request.getMoradorId())
                 .orElseThrow(() -> new ResourceNotFoundException("Morador", request.getMoradorId()));
@@ -59,6 +60,7 @@ public class BoletoService implements IBoletoService {
         return new BoletoResponse(salvo);
     }
 
+    @Transactional
     public BoletoResponse pagarBoleto(Long boletoId) {
         Boleto boleto = boletoRepository.findById(boletoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Boleto", boletoId));
@@ -74,6 +76,7 @@ public class BoletoService implements IBoletoService {
         return new BoletoResponse(salvo);
     }
 
+    @Transactional
     public BoletoResponse atualizarBoleto(Long boletoId, BoletoRequest request) {
         Boleto boleto = boletoRepository.findById(boletoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Boleto", boletoId));
@@ -92,18 +95,21 @@ public class BoletoService implements IBoletoService {
         return new BoletoResponse(salvo);
     }
 
+    @Transactional
     public void deletarBoleto(Long boletoId) {
         if (!boletoRepository.existsById(boletoId)) {
             throw new ResourceNotFoundException("Boleto", boletoId);
         }
         boletoRepository.deleteById(boletoId);
     }
+    @Transactional(readOnly = true)
     public void enviarEmailBoleto(Long boletoId) {
         Boleto boleto = boletoRepository.findById(boletoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Boleto", boletoId));
         emailService.enviarEmailBoleto(boleto.getMorador().getEmail(), boleto.getMorador().getNome(), boleto);
     }
 
+    @Transactional(readOnly = true)
     public void enviarCobrancaBoleto(Long boletoId) {
         Boleto boleto = boletoRepository.findById(boletoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Boleto", boletoId));
