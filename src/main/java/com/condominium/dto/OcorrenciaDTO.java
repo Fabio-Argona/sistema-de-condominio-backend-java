@@ -2,6 +2,7 @@ package com.condominium.dto;
 
 import com.condominium.model.Ocorrencia;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public record OcorrenciaDTO(
@@ -35,7 +36,7 @@ public record OcorrenciaDTO(
             ocorrencia.getMorador().getBloco(),
             ocorrencia.getDataCriacao().format(formatter),
             ocorrencia.getDataAtualizacao().format(formatter),
-            ocorrencia.getRespostasSindico()
+            new ArrayList<>(ocorrencia.getRespostasSindico())
         );
     }
 }
