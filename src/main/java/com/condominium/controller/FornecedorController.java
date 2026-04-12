@@ -27,6 +27,7 @@ public class FornecedorController {
 
     @Operation(summary = "Listar todos os fornecedores")
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public List<FornecedorDTO> listarTodos() {
         return fornecedorService.listarTodos();
     }

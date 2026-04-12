@@ -28,6 +28,7 @@ public class MoradorController {
 
     @Operation(summary = "Listar todos os moradores")
     @GetMapping
+    @PreAuthorize("isAuthenticated()")
     public List<UserDTO> listarTodos() {
         return moradorService.listarTodos();
     }

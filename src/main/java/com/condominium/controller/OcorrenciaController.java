@@ -26,7 +26,7 @@ public class OcorrenciaController {
 
     @Operation(summary = "Listar todas as ocorrências")
     @GetMapping
-    @PreAuthorize("hasRole('SINDICO')")
+    @PreAuthorize("isAuthenticated()")
     public List<OcorrenciaDTO> listarTodas() {
         return ocorrenciaService.listarTodas();
     }
