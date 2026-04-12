@@ -4,8 +4,10 @@ import com.condominium.dto.UserDTO;
 import com.condominium.model.Usuario;
 import com.condominium.repository.UsuarioRepository;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,5 +44,31 @@ public class UsuarioController {
 
         Usuario salvo = usuarioRepository.save(usuario);
         return ResponseEntity.ok(UserDTO.fromEntity(salvo));
+    }
+
+    @Operation(summary = "Trocar senha do próprio usuário", security = @SecurityRequirement(name = "bearerAuth"))
+    @PatchMapping("/{id}/senha")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<?> trocarSenha(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        var usuario = usuarioRepository.findById(id)
+                .orElse(null);
+        if (usuario == null) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Usuário não encontrado."));
+        }
+
+        String senhaAtual = body.get("senhaAtual");
+        String novaSenha = body.get("novaSenha");
+
+        if (senhaAtual == null || novaSenha == null || novaSenha.length() < 6) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Nova senha deve ter no mínimo 6 caracteres."));
+        }
+
+        if (!passwordEncoder.matches(senhaAtual, usuario.getSenha())) {
+            return ResponseEntity.status(401).body(Map.of("message", "Senha atual incorreta."));
+        }
+
+        usuario.setSenha(passwordEncoder.encode(novaSenha));
+        usuarioRepository.save(usuario);
+        return ResponseEntity.ok(Map.of("message", "Senha alterada com sucesso!"));
     }
 }
