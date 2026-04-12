@@ -62,12 +62,15 @@ public class UsuarioController {
         String senhaAtual = body.get("senhaAtual");
         String novaSenha = body.get("novaSenha");
 
-        if (senhaAtual == null || novaSenha == null || novaSenha.length() < 6) {
+        if (novaSenha == null || novaSenha.length() < 6) {
             return ResponseEntity.badRequest().body(Map.of("message", "Nova senha deve ter no mínimo 6 caracteres."));
         }
 
-        if (!passwordEncoder.matches(senhaAtual, usuario.getSenha())) {
-            return ResponseEntity.status(401).body(Map.of("message", "Senha atual incorreta."));
+        // Pula verificação da senha atual somente no primeiro acesso (senha temporária)
+        if (!usuario.isPrimeiroAcesso()) {
+            if (senhaAtual == null || !passwordEncoder.matches(senhaAtual, usuario.getSenha())) {
+                return ResponseEntity.status(401).body(Map.of("message", "Senha atual incorreta."));
+            }
         }
 
         usuario.setSenha(passwordEncoder.encode(novaSenha));
