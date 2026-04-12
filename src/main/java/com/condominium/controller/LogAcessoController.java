@@ -42,6 +42,7 @@ public class LogAcessoController {
 
     @Operation(summary = "Registrar acesso do usuário autenticado")
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<Void> registrarAcesso(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody Map<String, String> body,
