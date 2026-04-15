@@ -2,93 +2,78 @@ package com.condominium.controller;
 
 import com.condominium.dto.UserDTO;
 import com.condominium.model.Usuario;
-import com.condominium.repository.UsuarioRepository;
-import com.condominium.service.EmailService;
-import com.condominium.service.JwtService;
+import com.condominium.service.impl.IUsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/usuarios")
-@Tag(name = "Usuários", description = "Criação de acesso inicial")
+@RequestMapping({"/api/usuarios", "/api/moradores"})
+@Tag(name = "Usuários", description = "Gestão de usuários (SINDICO)")
+@SecurityRequirement(name = "bearerAuth")
+@PreAuthorize("hasRole('SINDICO')")
 public class UsuarioController {
 
-    private final UsuarioRepository usuarioRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    private final EmailService emailService;
+    private final IUsuarioService usuarioService;
 
-    public UsuarioController(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtService jwtService, EmailService emailService) {
-        this.usuarioRepository = usuarioRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtService = jwtService;
-        this.emailService = emailService;
+    public UsuarioController(IUsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
     }
 
-    @Operation(summary = "Criar usuário inicial (público)", description = "Endpoint público para criação do primeiro acesso. Não requer autenticação.")
+    @Operation(summary = "Listar todos os usuários")
+    @GetMapping
+    @PreAuthorize("isAuthenticated()")
+    public List<UserDTO> listarTodos() {
+        return usuarioService.listarTodos();
+    }
+
+    @Operation(summary = "Cadastrar novo usuário", description = "Cria o usuário e envia e-mail de convite com senha temporária.")
     @PostMapping
     public ResponseEntity<?> criar(@RequestBody Usuario usuario) {
-        if (usuarioRepository.existsByEmail(usuario.getEmail())) {
-            return ResponseEntity.badRequest().body(Map.of("message", "E-mail já cadastrado!"));
-        }
-
-        // Hasheia a senha antes de salvar
-        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
-        
-        // Força role MORADOR para evitar escalada de privilégios via API pública
-        usuario.setRole(Usuario.Role.MORADOR);
-
-        // Garante que o usuário está ativo
-        usuario.setAtivo(true);
-
-        Usuario salvo = usuarioRepository.save(usuario);
-        return ResponseEntity.ok(UserDTO.fromEntity(salvo));
+        return ResponseEntity.ok(usuarioService.criar(usuario));
     }
 
-    @Operation(summary = "Trocar senha do próprio usuário", security = @SecurityRequirement(name = "bearerAuth"))
-    @PatchMapping("/{id}/senha")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> trocarSenha(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        var usuario = usuarioRepository.findById(id)
-                .orElse(null);
-        if (usuario == null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Usuário não encontrado."));
-        }
+    @Operation(summary = "Reenviar convite por e-mail")
+    @PostMapping("/{id}/reenviar-convite")
+    public ResponseEntity<?> reenviarConvite(@PathVariable Long id) {
+        Map<String, Object> resultado = usuarioService.reenviarConvite(id);
+        boolean success = Boolean.TRUE.equals(resultado.get("success"));
+        return success ? ResponseEntity.ok(resultado) : ResponseEntity.status(500).body(resultado);
+    }
 
-        String senhaAtual = body.get("senhaAtual");
-        String novaSenha = body.get("novaSenha");
+    @Operation(summary = "Atualizar dados do usuário")
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDTO> atualizar(@PathVariable Long id, @RequestBody Usuario usuarioAtualizado) {
+        return ResponseEntity.ok(usuarioService.atualizar(id, usuarioAtualizado));
+    }
 
-        if (novaSenha == null || novaSenha.length() < 6) {
-            return ResponseEntity.badRequest().body(Map.of("message", "Nova senha deve ter no mínimo 6 caracteres."));
-        }
+    @Operation(summary = "Remover usuário e todos os seus registros")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> remover(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.remover(id));
+    }
 
-        // Pula verificação da senha atual somente no primeiro acesso (senha temporária)
-        if (!usuario.isPrimeiroAcesso()) {
-            if (senhaAtual == null || !passwordEncoder.matches(senhaAtual, usuario.getSenha())) {
-                return ResponseEntity.status(401).body(Map.of("message", "Senha atual incorreta."));
-            }
-        }
+    @Operation(summary = "Ativar ou desativar usuário")
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<UserDTO> alternarStatus(@PathVariable Long id) {
+        return ResponseEntity.ok(usuarioService.alternarStatus(id));
+    }
 
-        if (passwordEncoder.matches(novaSenha, usuario.getSenha())) {
-            return ResponseEntity.badRequest().body(Map.of("message", "A nova senha não pode ser igual à senha atual."));
-        }
-
-        usuario.setSenha(passwordEncoder.encode(novaSenha));
-        usuario.setPrimeiroAcesso(false);
-        usuarioRepository.save(usuario);
-        emailService.enviarEmailSenhaAlterada(usuario.getEmail(), usuario.getNome());
-        String novoToken = jwtService.generateToken(usuario);
-        return ResponseEntity.ok(Map.of(
-            "message", "Senha alterada com sucesso!",
-            "token", novoToken,
-            "user", UserDTO.fromEntity(usuario)
+    @Operation(summary = "Alterar perfil do usuário")
+    @PatchMapping("/{id}/role")
+    public ResponseEntity<UserDTO> alterarRole(@PathVariable Long id, @RequestBody Map<String, String> body, Authentication authentication) {
+        return ResponseEntity.ok(usuarioService.alterarRole(
+                id,
+                body.get("role"),
+                body.get("senhaConfirmacao"),
+                authentication.getName()
         ));
     }
 }

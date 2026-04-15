@@ -31,7 +31,7 @@ public class LogEmailResponse {
             case COBRANCA_BOLETO_VENCIDO -> "Cobrança - Boleto Vencido";
             case RECUPERACAO_SENHA -> "Recuperação de Acesso";
             case SENHA_ALTERADA -> "Alteração de Senha";
-            case CONVITE_MORADOR -> "Convite de Morador";
+            case CONVITE_MORADOR -> "Convite de Usuário";
             case NOVA_RESERVA -> "Notificação de Reserva";
             case STATUS_RESERVA -> "Atualização de Reserva";
         };

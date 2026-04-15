@@ -31,21 +31,21 @@ public class ReservaController {
         return reservaService.listarTodas();
     }
 
-    @Operation(summary = "Listar reservas de um morador")
-    @GetMapping("/morador/{moradorId}")
+    @Operation(summary = "Listar reservas de um usuário")
+    @GetMapping({"/usuario/{usuarioId}", "/morador/{usuarioId}"})
     @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
-    public List<ReservaDTO> listarPorMorador(@PathVariable Long moradorId) {
-        return reservaService.listarPorMorador(moradorId);
+    public List<ReservaDTO> listarPorMorador(@PathVariable Long usuarioId) {
+        return reservaService.listarPorMorador(usuarioId);
     }
 
     @Operation(summary = "Criar reserva", description = "Retorna 409 se houver conflito de horário na área comum.")
-    @PostMapping("/morador/{moradorId}/area/{areaId}")
+    @PostMapping({"/usuario/{usuarioId}/area/{areaId}", "/morador/{usuarioId}/area/{areaId}"})
     @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
     public ResponseEntity<?> criar(
-            @PathVariable Long moradorId,
+            @PathVariable Long usuarioId,
             @PathVariable Long areaId,
             @RequestBody Reserva reserva) {
-        Object resultado = reservaService.criar(moradorId, areaId, reserva);
+        Object resultado = reservaService.criar(usuarioId, areaId, reserva);
         if (resultado instanceof ResponseEntity) {
             return (ResponseEntity<?>) resultado;
         }

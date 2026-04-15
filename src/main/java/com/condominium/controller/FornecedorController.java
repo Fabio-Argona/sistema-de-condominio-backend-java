@@ -32,11 +32,11 @@ public class FornecedorController {
         return fornecedorService.listarTodos();
     }
 
-    @Operation(summary = "Listar fornecedores de um morador")
-    @GetMapping("/morador/{moradorId}")
+    @Operation(summary = "Listar fornecedores de um usuário")
+    @GetMapping({"/usuario/{usuarioId}", "/morador/{usuarioId}"})
     @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
-    public List<FornecedorDTO> listarPorMorador(@PathVariable Long moradorId) {
-        return fornecedorService.listarPorMorador(moradorId);
+    public List<FornecedorDTO> listarPorMorador(@PathVariable Long usuarioId) {
+        return fornecedorService.listarPorMorador(usuarioId);
     }
 
     @Operation(summary = "Cadastrar fornecedor (síndico)")
@@ -45,11 +45,11 @@ public class FornecedorController {
         return ResponseEntity.ok(fornecedorService.criar(fornecedor));
     }
 
-    @Operation(summary = "Cadastrar fornecedor por morador")
-    @PostMapping("/morador/{moradorId}")
+    @Operation(summary = "Cadastrar fornecedor por usuário")
+    @PostMapping({"/usuario/{usuarioId}", "/morador/{usuarioId}"})
     @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
-    public ResponseEntity<FornecedorDTO> criarPorMorador(@PathVariable Long moradorId, @RequestBody Fornecedor fornecedor) {
-        return ResponseEntity.ok(fornecedorService.criarParaMorador(moradorId, fornecedor));
+    public ResponseEntity<FornecedorDTO> criarPorMorador(@PathVariable Long usuarioId, @RequestBody Fornecedor fornecedor) {
+        return ResponseEntity.ok(fornecedorService.criarParaMorador(usuarioId, fornecedor));
     }
 
     @Operation(summary = "Atualizar fornecedor (síndico)")
@@ -58,11 +58,11 @@ public class FornecedorController {
         return ResponseEntity.ok(fornecedorService.atualizar(id, dados));
     }
 
-    @Operation(summary = "Atualizar fornecedor por morador (somente dono)")
-    @PutMapping("/morador/{moradorId}/{id}")
+    @Operation(summary = "Atualizar fornecedor por usuário (somente dono)")
+    @PutMapping({"/usuario/{usuarioId}/{id}", "/morador/{usuarioId}/{id}"})
     @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
-    public ResponseEntity<FornecedorDTO> atualizarPorMorador(@PathVariable Long moradorId, @PathVariable Long id, @RequestBody Fornecedor dados) {
-        return ResponseEntity.ok(fornecedorService.atualizarParaMorador(moradorId, id, dados));
+    public ResponseEntity<FornecedorDTO> atualizarPorMorador(@PathVariable Long usuarioId, @PathVariable Long id, @RequestBody Fornecedor dados) {
+        return ResponseEntity.ok(fornecedorService.atualizarParaMorador(usuarioId, id, dados));
     }
 
     @Operation(summary = "Deletar fornecedor (síndico)")
@@ -72,11 +72,11 @@ public class FornecedorController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Deletar fornecedor por morador (somente dono)")
-    @DeleteMapping("/morador/{moradorId}/{id}")
+    @Operation(summary = "Deletar fornecedor por usuário (somente dono)")
+    @DeleteMapping({"/usuario/{usuarioId}/{id}", "/morador/{usuarioId}/{id}"})
     @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
-    public ResponseEntity<Void> deletarPorMorador(@PathVariable Long moradorId, @PathVariable Long id) {
-        fornecedorService.deletarParaMorador(moradorId, id);
+    public ResponseEntity<Void> deletarPorMorador(@PathVariable Long usuarioId, @PathVariable Long id) {
+        fornecedorService.deletarParaMorador(usuarioId, id);
         return ResponseEntity.noContent().build();
     }
 }

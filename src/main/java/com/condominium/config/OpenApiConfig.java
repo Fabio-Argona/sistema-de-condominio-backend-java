@@ -39,7 +39,7 @@ public class OpenApiConfig {
                                         .description("Insira o token JWT obtido no login")))
                 .tags(List.of(
                         new Tag().name("Autenticação").description("Login e recuperação de senha"),
-                        new Tag().name("Moradores").description("Gestão de moradores (SINDICO)"),
+                        new Tag().name("Usuários").description("Gestão de usuários (SINDICO)"),
                         new Tag().name("Boletos").description("Geração e gestão de boletos"),
                         new Tag().name("Ocorrências").description("Registro e acompanhamento de ocorrências"),
                         new Tag().name("Reservas").description("Reservas de áreas comuns"),

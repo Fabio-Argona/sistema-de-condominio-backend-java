@@ -35,7 +35,7 @@ public class LogDownloadBoletoResponse {
     private String labelFor(String role) {
         return switch (role) {
             case "SINDICO" -> "Síndico";
-            case "MORADOR" -> "Morador";
+            case "MORADOR" -> "Usuário";
             case "PORTEIRO" -> "Porteiro";
             default -> role;
         };

@@ -31,23 +31,30 @@ public class OcorrenciaController {
         return ocorrenciaService.listarTodas();
     }
 
-    @Operation(summary = "Listar ocorrências de um morador")
-    @GetMapping("/morador/{moradorId}")
+    @Operation(summary = "Listar ocorrências de um usuário")
+    @GetMapping({"/usuario/{usuarioId}", "/morador/{usuarioId}"})
     @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
-    public List<OcorrenciaDTO> listarPorMorador(@PathVariable Long moradorId) {
-        return ocorrenciaService.listarPorMorador(moradorId);
+    public List<OcorrenciaDTO> listarPorMorador(@PathVariable Long usuarioId) {
+        return ocorrenciaService.listarPorMorador(usuarioId);
+    }
+
+    @Operation(summary = "Listar ocorrências encaminhadas para um profissional")
+    @GetMapping("/profissional/{profissionalId}")
+    @PreAuthorize("hasAnyRole('SINDICO', 'MANTENEDOR')")
+    public List<OcorrenciaDTO> listarPorProfissional(@PathVariable Long profissionalId) {
+        return ocorrenciaService.listarPorProfissional(profissionalId);
     }
 
     @Operation(summary = "Abrir nova ocorrência")
-    @PostMapping("/morador/{moradorId}")
-    @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
-    public ResponseEntity<OcorrenciaDTO> criar(@PathVariable Long moradorId, @RequestBody Ocorrencia ocorrencia) {
-        return ResponseEntity.ok(ocorrenciaService.criar(moradorId, ocorrencia));
+    @PostMapping({"/usuario/{usuarioId}", "/morador/{usuarioId}"})
+    @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR', 'MANTENEDOR')")
+    public ResponseEntity<OcorrenciaDTO> criar(@PathVariable Long usuarioId, @RequestBody Ocorrencia ocorrencia) {
+        return ResponseEntity.ok(ocorrenciaService.criar(usuarioId, ocorrencia));
     }
 
     @Operation(summary = "Atualizar status e resposta da ocorrência")
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasRole('SINDICO')")
+    @PreAuthorize("hasAnyRole('SINDICO', 'MANTENEDOR')")
     public ResponseEntity<OcorrenciaDTO> atualizarStatus(@PathVariable Long id, @RequestBody Ocorrencia dadosAtualizacao) {
         return ResponseEntity.ok(ocorrenciaService.atualizarStatus(id, dadosAtualizacao));
     }

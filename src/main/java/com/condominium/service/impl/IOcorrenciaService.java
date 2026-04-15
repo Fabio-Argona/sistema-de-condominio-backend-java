@@ -8,6 +8,7 @@ import java.util.List;
 public interface IOcorrenciaService {
     List<OcorrenciaDTO> listarTodas();
     List<OcorrenciaDTO> listarPorMorador(Long moradorId);
+    List<OcorrenciaDTO> listarPorProfissional(Long profissionalId);
     OcorrenciaDTO criar(Long moradorId, Ocorrencia ocorrencia);
     OcorrenciaDTO atualizarStatus(Long id, Ocorrencia dadosAtualizacao);
 }

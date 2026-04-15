@@ -47,7 +47,7 @@ public class Usuario implements UserDetails {
     private LocalDateTime ultimoAcesso;
 
     public enum Role {
-        SINDICO, MORADOR, PORTEIRO
+        SINDICO, MORADOR, PORTEIRO, MANTENEDOR
     }
 
     // Métodos do UserDetails

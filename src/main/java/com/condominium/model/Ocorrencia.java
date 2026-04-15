@@ -34,6 +34,13 @@ public class Ocorrencia {
     @JoinColumn(name = "morador_id", nullable = false)
     private Usuario morador;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profissional_responsavel_id")
+    private Usuario profissionalResponsavel;
+
+    @Transient
+    private Long profissionalResponsavelId;
+
     @Column(nullable = false)
     private LocalDateTime dataCriacao = LocalDateTime.now();
 
@@ -81,6 +88,12 @@ public class Ocorrencia {
     
     public Usuario getMorador() { return morador; }
     public void setMorador(Usuario morador) { this.morador = morador; }
+
+    public Usuario getProfissionalResponsavel() { return profissionalResponsavel; }
+    public void setProfissionalResponsavel(Usuario profissionalResponsavel) { this.profissionalResponsavel = profissionalResponsavel; }
+
+    public Long getProfissionalResponsavelId() { return profissionalResponsavelId; }
+    public void setProfissionalResponsavelId(Long profissionalResponsavelId) { this.profissionalResponsavelId = profissionalResponsavelId; }
     
     public LocalDateTime getDataCriacao() { return dataCriacao; }
     public void setDataCriacao(LocalDateTime dataCriacao) { this.dataCriacao = dataCriacao; }

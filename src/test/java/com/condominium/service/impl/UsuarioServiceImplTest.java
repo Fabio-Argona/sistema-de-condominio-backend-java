@@ -9,7 +9,7 @@ import com.condominium.repository.OcorrenciaRepository;
 import com.condominium.repository.ReservaRepository;
 import com.condominium.repository.UsuarioRepository;
 import com.condominium.service.EmailService;
-import com.condominium.service.MoradorServiceImpl;
+import com.condominium.service.UsuarioServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,7 +27,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class MoradorServiceImplTest {
+class UsuarioServiceImplTest {
 
     @Mock
     private UsuarioRepository usuarioRepository;
@@ -43,7 +43,7 @@ class MoradorServiceImplTest {
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
-    private MoradorServiceImpl service;
+    private UsuarioServiceImpl service;
 
     private Usuario morador;
 
@@ -66,7 +66,7 @@ class MoradorServiceImplTest {
 
     @Test
     void listarTodos_retornaListaDeMoradores() {
-        when(usuarioRepository.findByRole(Usuario.Role.MORADOR)).thenReturn(List.of(morador));
+        when(usuarioRepository.findAll()).thenReturn(List.of(morador));
         List<UserDTO> result = service.listarTodos();
         assertThat(result).hasSize(1);
         assertThat(result.get(0).nome()).isEqualTo("João");
@@ -267,31 +267,40 @@ class MoradorServiceImplTest {
     // alterarRole
 
     @Test
-    void alterarRole_roleValida_atualizaRole() {
+    void alterarRole_promocaoParaSindicoComSenhaValida_atualizaRole() {
+        Usuario sindicoAtual = new Usuario();
+        sindicoAtual.setId(2L);
+        sindicoAtual.setNome("Maria");
+        sindicoAtual.setEmail("maria@email.com");
+        sindicoAtual.setSenha("senha-hash");
+        sindicoAtual.setRole(Usuario.Role.SINDICO);
+
         when(usuarioRepository.findById(1L)).thenReturn(Optional.of(morador));
+        when(usuarioRepository.findByEmail("maria@email.com")).thenReturn(Optional.of(sindicoAtual));
+        when(passwordEncoder.matches("123456", "senha-hash")).thenReturn(true);
         when(usuarioRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        UserDTO result = service.alterarRole(1L, "SINDICO");
+        UserDTO result = service.alterarRole(1L, "SINDICO", "123456", "maria@email.com");
         assertThat(result.role()).isEqualTo("SINDICO");
     }
 
     @Test
     void alterarRole_roleInvalida_lancaBusinessException() {
-        assertThatThrownBy(() -> service.alterarRole(1L, "INVALIDA"))
+        assertThatThrownBy(() -> service.alterarRole(1L, "INVALIDA", null, null))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("Role inválida");
     }
 
     @Test
     void alterarRole_roleNula_lancaBusinessException() {
-        assertThatThrownBy(() -> service.alterarRole(1L, null))
+        assertThatThrownBy(() -> service.alterarRole(1L, null, null, null))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("obrigatório");
     }
 
     @Test
     void alterarRole_roleEmBranco_lancaBusinessException() {
-        assertThatThrownBy(() -> service.alterarRole(1L, "  "))
+        assertThatThrownBy(() -> service.alterarRole(1L, "  ", null, null))
                 .isInstanceOf(BusinessException.class)
                 .hasMessageContaining("obrigatório");
     }
@@ -299,7 +308,14 @@ class MoradorServiceImplTest {
     @Test
     void alterarRole_naoEncontrado_lancaResourceNotFoundException() {
         when(usuarioRepository.findById(99L)).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> service.alterarRole(99L, "MORADOR"))
+        assertThatThrownBy(() -> service.alterarRole(99L, "MORADOR", null, null))
                 .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    void alterarRole_promocaoParaSindicoSemSenha_lancaBusinessException() {
+        assertThatThrownBy(() -> service.alterarRole(1L, "SINDICO", null, "maria@email.com"))
+                .isInstanceOf(BusinessException.class)
+                .hasMessageContaining("Digite sua senha");
     }
 }

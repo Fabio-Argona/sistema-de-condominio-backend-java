@@ -33,11 +33,11 @@ public class BoletoController {
         return ResponseEntity.ok(boletoService.listarBoletos());
     }
 
-    @Operation(summary = "Listar boletos por morador")
-    @GetMapping("/morador/{moradorId}")
+    @Operation(summary = "Listar boletos por usuário")
+    @GetMapping({"/usuario/{usuarioId}", "/morador/{usuarioId}"})
     @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
-    public ResponseEntity<List<BoletoResponse>> listarPorMorador(@PathVariable Long moradorId) {
-        return ResponseEntity.ok(boletoService.listarBoletosPorMorador(moradorId));
+    public ResponseEntity<List<BoletoResponse>> listarPorMorador(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(boletoService.listarBoletosPorMorador(usuarioId));
     }
 
     @Operation(summary = "Gerar novo boleto")
