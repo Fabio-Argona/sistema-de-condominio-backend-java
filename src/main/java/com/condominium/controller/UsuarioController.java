@@ -3,6 +3,7 @@ package com.condominium.controller;
 import com.condominium.dto.UserDTO;
 import com.condominium.model.Usuario;
 import com.condominium.repository.UsuarioRepository;
+import com.condominium.service.EmailService;
 import com.condominium.service.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -22,11 +23,13 @@ public class UsuarioController {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final EmailService emailService;
 
-    public UsuarioController(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public UsuarioController(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtService jwtService, EmailService emailService) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.emailService = emailService;
     }
 
     @Operation(summary = "Criar usuário inicial (público)", description = "Endpoint público para criação do primeiro acesso. Não requer autenticação.")
@@ -73,9 +76,14 @@ public class UsuarioController {
             }
         }
 
+        if (passwordEncoder.matches(novaSenha, usuario.getSenha())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "A nova senha não pode ser igual à senha atual."));
+        }
+
         usuario.setSenha(passwordEncoder.encode(novaSenha));
         usuario.setPrimeiroAcesso(false);
         usuarioRepository.save(usuario);
+        emailService.enviarEmailSenhaAlterada(usuario.getEmail(), usuario.getNome());
         String novoToken = jwtService.generateToken(usuario);
         return ResponseEntity.ok(Map.of(
             "message", "Senha alterada com sucesso!",

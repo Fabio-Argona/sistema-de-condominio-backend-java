@@ -1,6 +1,9 @@
 package com.condominium.service;
 
 import com.condominium.model.Boleto;
+import com.condominium.model.LogEmail;
+import com.condominium.model.LogEmail.TipoEmail;
+import com.condominium.repository.LogEmailRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +13,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 
@@ -17,15 +21,26 @@ import java.util.Base64;
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final LogEmailRepository logEmailRepository;
 
     @Value("${spring.mail.username}")
     private String mailFrom;
 
-    public EmailService(JavaMailSender mailSender) {
+    public EmailService(JavaMailSender mailSender, LogEmailRepository logEmailRepository) {
         this.mailSender = mailSender;
+        this.logEmailRepository = logEmailRepository;
     }
 
-    @Async
+    private void registrarLog(TipoEmail tipo, String destinatario, String destinatarioNome,
+                               Long boletoId, String descricao) {
+        try {
+            logEmailRepository.save(new LogEmail(tipo, destinatario, destinatarioNome,
+                    LocalDateTime.now(), boletoId, descricao));
+        } catch (Exception ex) {
+            System.err.println("[EmailService] Falha ao registrar log de e-mail: " + ex.getMessage());
+        }
+    }
+
     public void enviarNovaSenha(String destinatario, String nomeUsuario, String novaSenha) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -37,6 +52,8 @@ public class EmailService {
             helper.setText(buildHtmlEmail(nomeUsuario, novaSenha), true);
 
             mailSender.send(message);
+            registrarLog(TipoEmail.RECUPERACAO_SENHA, destinatario, nomeUsuario, null,
+                    "Recuperação de senha para " + nomeUsuario);
         } catch (MessagingException e) {
             throw new RuntimeException("Erro ao enviar e-mail: " + e.getMessage(), e);
         }
@@ -54,6 +71,8 @@ public class EmailService {
             helper.setText(buildNovaReservaHtml(nomeMorador, areaNome, data, horario), true);
 
             mailSender.send(message);
+            registrarLog(TipoEmail.NOVA_RESERVA, destinatarioSindico, "Síndico", null,
+                    "Nova reserva de " + nomeMorador + " em " + areaNome + " (" + data + ")");
         } catch (Exception e) {
             System.err.println("[EmailService] Falha ao enviar aviso de reserva: " + e.getMessage());
         }
@@ -72,6 +91,8 @@ public class EmailService {
             helper.setText(buildStatusReservaHtml(areaNome, data, horario, status), true);
 
             mailSender.send(message);
+            registrarLog(TipoEmail.STATUS_RESERVA, destinatarioMorador, destinatarioMorador, null,
+                    "Status de reserva em " + areaNome + ": " + status);
         } catch (Exception e) {
             System.err.println("[EmailService] Falha ao enviar status de reserva: " + e.getMessage());
         }
@@ -89,10 +110,125 @@ public class EmailService {
             helper.setText(buildConviteHtml(nomeUsuario, destinatario, senhaTemporaria, apartamento, bloco), true);
 
             mailSender.send(message);
+            registrarLog(TipoEmail.CONVITE_MORADOR, destinatario, nomeUsuario, null,
+                    "Convite de acesso para " + nomeUsuario + " (" + apartamento + "/" + bloco + ")");
             System.out.println("[EmailService] Convite enviado com sucesso para: " + destinatario);
         } catch (MessagingException e) {
             throw new RuntimeException("Erro ao enviar e-mail de convite: " + e.getMessage(), e);
         }
+    }
+
+    @Async
+    public void enviarEmailSenhaAlterada(String destinatario, String nomeUsuario) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(mailFrom);
+            helper.setTo(destinatario);
+            helper.setSubject("🔒 Residencial Oceano - Senha Alterada com Sucesso");
+            helper.setText(buildSenhaAlteradaHtml(nomeUsuario), true);
+
+            mailSender.send(message);
+            registrarLog(TipoEmail.SENHA_ALTERADA, destinatario, nomeUsuario, null,
+                    "Senha alterada com sucesso para " + nomeUsuario);
+            System.out.println("[EmailService] Confirmação de senha alterada enviada para: " + destinatario);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Erro ao enviar e-mail de confirmação de senha: " + e.getMessage(), e);
+        }
+    }
+
+    private String buildSenhaAlteradaHtml(String nomeUsuario) {
+        return """
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="margin:0; padding:0; background-color:#f1f5f9; font-family:'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+                <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="background-color:#f1f5f9; padding:40px 20px;">
+                    <tr>
+                        <td align="center">
+                            <table role="presentation" width="560" cellspacing="0" cellpadding="0" style="background-color:#ffffff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+                                <!-- Header -->
+                                <tr>
+                                    <td style="background: linear-gradient(135deg, #1e3a5f 0%%, #2563eb 50%%, #1e40af 100%%); padding:36px 40px; text-align:center;">
+                                        <table role="presentation" width="100%%" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td align="center">
+                                                    <div style="display:inline-block; border-radius:2px; padding:2px; margin-bottom:2px;">
+                                                        <img src="https://sistema-de-condominio-frontend-next.vercel.app/oceano-logo.png" alt="Logo Oceano" width="180" style="display:block; border-radius:8px; padding:2px; object-fit:contain;" />
+                                                    </div>
+                                                    <p style="margin:0 0 -2px 0; font-size:11px; font-weight:700; letter-spacing:3px; color:rgba(255,255,255,0.7); text-transform:uppercase;">Residencial</p>
+                                                    <h1 style="margin:0; font-size:32px; font-weight:900; color:#ffffff; letter-spacing:1px;">OCEANO</h1>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <!-- Content -->
+                                <tr>
+                                    <td style="padding:40px;">
+                                        <h2 style="margin:0 0 8px 0; font-size:22px; font-weight:700; color:#1e293b;">🔒 Senha Alterada com Sucesso</h2>
+                                        <p style="margin:0 0 28px 0; font-size:15px; color:#64748b; line-height:1.6;">
+                                            Olá, <strong style="color:#1e293b;">%s</strong>! Sua senha foi alterada com sucesso. Sua conta está segura.
+                                        </p>
+                                        <!-- Success box -->
+                                        <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="margin-bottom:28px;">
+                                            <tr>
+                                                <td style="background: linear-gradient(135deg, #f0fdf4 0%%, #dcfce7 100%%); border:2px solid #86efac; border-radius:12px; padding:24px; text-align:center;">
+                                                    <p style="margin:0 0 8px 0; font-size:40px;">✅</p>
+                                                    <p style="margin:0 0 4px 0; font-size:16px; font-weight:700; color:#15803d;">Senha atualizada!</p>
+                                                    <p style="margin:0; font-size:13px; color:#16a34a; line-height:1.5;">Sua nova senha já está ativa no sistema.<br>Use-a no seu próximo acesso.</p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <!-- Warning -->
+                                        <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="margin-bottom:28px;">
+                                            <tr>
+                                                <td style="background-color:#fffbeb; border-left:4px solid #f59e0b; border-radius:0 8px 8px 0; padding:16px 20px;">
+                                                    <p style="margin:0; font-size:13px; color:#92400e; line-height:1.6;">
+                                                        <strong>⚠️ Não reconhece esta alteração?</strong> Se você não alterou sua senha, entre em contato com a administração do condomínio imediatamente ou acesse o portal para recuperar seu acesso.
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <!-- Button -->
+                                        <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="margin-bottom:28px;">
+                                            <tr>
+                                                <td align="center">
+                                                    <a href="https://sistema-de-condominio-frontend-next.vercel.app/login" target="_blank" style="background-color:#2563eb; color:#ffffff; padding:18px 36px; text-decoration:none; border-radius:12px; font-weight:700; font-size:16px; display:inline-block; border:1px solid #1e40af;">Acessar Sistema do Condomínio</a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                        <p style="margin:0; font-size:14px; color:#94a3b8; line-height:1.6; text-align:center;">
+                                            Este é um aviso automático de segurança da sua conta.
+                                        </p>
+                                    </td>
+                                </tr>
+                                <!-- Footer -->
+                                <tr>
+                                    <td style="background-color:#f8fafc; border-top:1px solid #e2e8f0; padding:24px 40px; text-align:center;">
+                                        <p style="margin:0 0 4px 0; font-size:13px; font-weight:600; color:#475569;">Administração - Residencial Oceano</p>
+                                        <p style="margin:0; font-size:12px; color:#94a3b8;">Este é um e-mail automático, por favor não responda.</p>
+                                    </td>
+                                </tr>
+                            </table>
+                            <!-- Sub-footer -->
+                            <table role="presentation" width="560" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td style="padding:20px 40px; text-align:center;">
+                                        <p style="margin:0; font-size:11px; color:#94a3b8;">© 2026 Residencial Oceano. Todos os direitos reservados.</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </body>
+            </html>
+            """.formatted(nomeUsuario);
     }
 
     private String buildConviteHtml(String nomeUsuario, String email, String senhaTemporaria, String apartamento, String bloco) {
@@ -366,6 +502,8 @@ public class EmailService {
             helper.setText(buildCobrancaHtml(nomeMorador, boleto.getDescricao(), valor, dataVenc), true);
 
             mailSender.send(message);
+            registrarLog(TipoEmail.COBRANCA_BOLETO_VENCIDO, destinatario, nomeMorador, boleto.getId(),
+                    "Cobrança boleto vencido: " + boleto.getDescricao() + " (venc. " + boleto.getDataVencimento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")");
             System.out.println("[EmailService] E-mail de cobrança enviado para: " + destinatario);
         } catch (Exception e) {
             System.err.println("[EmailService] Falha ao enviar e-mail de cobrança: " + e.getMessage());
@@ -513,6 +651,8 @@ public class EmailService {
             }
 
             mailSender.send(message);
+            registrarLog(TipoEmail.ENVIO_BOLETO, destinatario, nomeMorador, boleto.getId(),
+                    "Envio boleto: " + boleto.getDescricao() + " (venc. " + boleto.getDataVencimento().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ")");
             System.out.println("[EmailService] E-mail de boleto enviado para: " + destinatario);
         } catch (Exception e) {
             System.err.println("[EmailService] Falha ao enviar e-mail de boleto: " + e.getMessage());
