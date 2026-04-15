@@ -118,7 +118,6 @@ public class EmailService {
         }
     }
 
-    @Async
     public void enviarEmailSenhaAlterada(String destinatario, String nomeUsuario) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
