@@ -29,8 +29,8 @@ public class LogEmailResponse {
         return switch (tipo) {
             case ENVIO_BOLETO -> "Envio de Boleto";
             case COBRANCA_BOLETO_VENCIDO -> "Cobrança - Boleto Vencido";
-            case RECUPERACAO_SENHA -> "Recuperação de Senha";
-            case SENHA_ALTERADA -> "Senha Alterada";
+            case RECUPERACAO_SENHA -> "Recuperação de Acesso";
+            case SENHA_ALTERADA -> "Alteração de Senha";
             case CONVITE_MORADOR -> "Convite de Morador";
             case NOVA_RESERVA -> "Notificação de Reserva";
             case STATUS_RESERVA -> "Atualização de Reserva";

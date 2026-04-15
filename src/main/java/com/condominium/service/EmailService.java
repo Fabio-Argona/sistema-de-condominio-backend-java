@@ -53,7 +53,7 @@ public class EmailService {
 
             mailSender.send(message);
             registrarLog(TipoEmail.RECUPERACAO_SENHA, destinatario, nomeUsuario, null,
-                    "Recuperação de senha para " + nomeUsuario);
+                    "Recuperação de acesso com envio de senha temporária para " + nomeUsuario);
         } catch (MessagingException e) {
             throw new RuntimeException("Erro ao enviar e-mail: " + e.getMessage(), e);
         }
@@ -131,7 +131,7 @@ public class EmailService {
 
             mailSender.send(message);
             registrarLog(TipoEmail.SENHA_ALTERADA, destinatario, nomeUsuario, null,
-                    "Senha alterada com sucesso para " + nomeUsuario);
+                    "Alteração de senha realizada para " + nomeUsuario);
             System.out.println("[EmailService] Confirmação de senha alterada enviada para: " + destinatario);
         } catch (MessagingException e) {
             throw new RuntimeException("Erro ao enviar e-mail de confirmação de senha: " + e.getMessage(), e);
