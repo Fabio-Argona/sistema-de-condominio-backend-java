@@ -14,4 +14,5 @@ public interface IBoletoService {
     void deletarBoleto(Long boletoId);
     void enviarEmailBoleto(Long boletoId);
     void enviarCobrancaBoleto(Long boletoId);
+    void registrarDownloadBoleto(Long boletoId, String emailUsuario);
 }

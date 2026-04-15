@@ -3,7 +3,6 @@ package com.condominium.service;
 import com.condominium.model.Boleto;
 import com.condominium.model.LogEmail;
 import com.condominium.model.LogEmail.TipoEmail;
-import com.condominium.repository.LogEmailRepository;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,7 +12,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 
@@ -21,21 +19,20 @@ import java.util.Base64;
 public class EmailService {
 
     private final JavaMailSender mailSender;
-    private final LogEmailRepository logEmailRepository;
+    private final LogEmailService logEmailService;
 
     @Value("${spring.mail.username}")
     private String mailFrom;
 
-    public EmailService(JavaMailSender mailSender, LogEmailRepository logEmailRepository) {
+    public EmailService(JavaMailSender mailSender, LogEmailService logEmailService) {
         this.mailSender = mailSender;
-        this.logEmailRepository = logEmailRepository;
+        this.logEmailService = logEmailService;
     }
 
     private void registrarLog(TipoEmail tipo, String destinatario, String destinatarioNome,
                                Long boletoId, String descricao) {
         try {
-            logEmailRepository.save(new LogEmail(tipo, destinatario, destinatarioNome,
-                    LocalDateTime.now(), boletoId, descricao));
+            logEmailService.registrar(tipo, destinatario, destinatarioNome, boletoId, descricao);
         } catch (Exception ex) {
             System.err.println("[EmailService] Falha ao registrar log de e-mail: " + ex.getMessage());
         }

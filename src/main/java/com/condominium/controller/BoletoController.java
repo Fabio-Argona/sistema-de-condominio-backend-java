@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -76,5 +78,19 @@ public class BoletoController {
     public ResponseEntity<Map<String, String>> enviarCobranca(@PathVariable Long id) {
         boletoService.enviarCobrancaBoleto(id);
         return ResponseEntity.ok(Map.of("message", "E-mail de cobrança enviado com sucesso!"));
+    }
+
+    @Operation(summary = "Registrar download de boleto")
+    @PostMapping("/{id}/registrar-download")
+    @PreAuthorize("hasAnyRole('SINDICO', 'MORADOR')")
+    public ResponseEntity<Map<String, String>> registrarDownload(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseEntity.status(401).build();
+        }
+
+        boletoService.registrarDownloadBoleto(id, userDetails.getUsername());
+        return ResponseEntity.ok(Map.of("message", "Download registrado com sucesso!"));
     }
 }

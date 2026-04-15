@@ -4,8 +4,10 @@ import com.condominium.dto.BoletoRequest;
 import com.condominium.dto.BoletoResponse;
 import com.condominium.exception.ResourceNotFoundException;
 import com.condominium.model.Boleto;
+import com.condominium.model.LogDownloadBoleto;
 import com.condominium.model.Usuario;
 import com.condominium.repository.BoletoRepository;
+import com.condominium.repository.LogDownloadBoletoRepository;
 import com.condominium.repository.UsuarioRepository;
 import com.condominium.service.impl.IBoletoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +30,9 @@ public class BoletoService implements IBoletoService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private LogDownloadBoletoRepository logDownloadBoletoRepository;
 
     @Transactional(readOnly = true)
     public List<BoletoResponse> listarBoletos() {
@@ -114,5 +120,26 @@ public class BoletoService implements IBoletoService {
         Boleto boleto = boletoRepository.findById(boletoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Boleto", boletoId));
         emailService.enviarEmailCobranca(boleto.getMorador().getEmail(), boleto.getMorador().getNome(), boleto);
+    }
+
+    @Transactional
+    public void registrarDownloadBoleto(Long boletoId, String emailUsuario) {
+        Boleto boleto = boletoRepository.findById(boletoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Boleto", boletoId));
+
+        Usuario usuario = usuarioRepository.findByEmail(emailUsuario)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado para o e-mail informado."));
+
+        logDownloadBoletoRepository.save(new LogDownloadBoleto(
+                boleto.getId(),
+                boleto.getMorador().getId(),
+                boleto.getMorador().getNome(),
+                boleto.getDescricao(),
+                usuario.getId(),
+                usuario.getNome(),
+                usuario.getEmail(),
+                usuario.getRole().name(),
+                LocalDateTime.now()
+        ));
     }
 }
